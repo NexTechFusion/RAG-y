@@ -80,14 +80,29 @@ The application implements a comprehensive schema including:
 
 4. **Database Setup**
    ```bash
-   # Create database
-   createdb ai_chat_db
+   # Create database by running docker
+   docker-compose up -d postgres redis
    
    # Run migrations
    bun run migrate
    
    # Seed initial data
    bun run seed
+   ```
+
+   // migrate failing if again
+   ```
+DELETE FROM migrations WHERE filename = '001_initial_schema.sql';
+
+-- Connect to your database and run this to clean slate:
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+GRANT ALL ON SCHEMA public TO postgres;
+GRANT ALL ON SCHEMA public TO public;
+
+-- Also delete migration tracking
+-- (Note: migrations table would be dropped with schema)
+
    ```
 
 5. **Start the application**
