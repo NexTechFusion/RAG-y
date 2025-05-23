@@ -27,6 +27,14 @@ export interface DepartmentPermission {
   permission: Permission;
 }
 
+export interface DepartmentPermissionResponse {
+  category: string;
+  description: string;
+  granted_at: string;
+  permission_id: string;
+  permission_name: string;
+}
+
 export interface AdminUser {
   user_id: string;
   first_name: string;

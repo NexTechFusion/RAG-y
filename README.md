@@ -100,6 +100,13 @@ The application implements a comprehensive schema including:
    bun start
    ```
 
+6. **Start the frontend**
+```bash 
+ cd app
+ npm install 
+ npm run dev
+```
+
 ## 📊 Database Migrations
 
 The application includes a complete database schema with:

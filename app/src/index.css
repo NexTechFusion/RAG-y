@@ -3,61 +3,128 @@
 /* Import Inter font */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+@theme {
+  /* Colors using hex format for Tailwind v4 compatibility */
+  --color-background: #ffffff;
+  --color-foreground: #1a1a1a;
+  --color-muted: #f8f9fa;
+  --color-muted-foreground: #64748b;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #1a1a1a;
+  --color-card: #ffffff;
+  --color-card-foreground: #1a1a1a;
+  --color-border: #e7e7e7;
+  --color-input: #f8f9fa;
+  --color-primary: #3b82f6;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #f1f5f9;
+  --color-secondary-foreground: #334155;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #334155;
+  --color-destructive: #ef4444;
+  --color-destructive-foreground: #ffffff;
+  --color-ring: #3b82f6;
+  
+  /* Semantic colors */
+  --color-success-50: #f0fdf4;
+  --color-success-100: #dcfce7;
+  --color-success-200: #bbf7d0;
+  --color-success-300: #86efac;
+  --color-success-400: #4ade80;
+  --color-success-500: #22c55e;
+  --color-success-600: #16a34a;
+  --color-success-700: #15803d;
+  --color-success-800: #166534;
+  --color-success-900: #14532d;
+  --color-success-950: #052e16;
+  
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-200: #fde68a;
+  --color-warning-300: #fcd34d;
+  --color-warning-400: #fbbf24;
+  --color-warning-500: #f59e0b;
+  --color-warning-600: #d97706;
+  --color-warning-700: #b45309;
+  --color-warning-800: #92400e;
+  --color-warning-900: #78350f;
+  --color-warning-950: #451a03;
+  
+  --color-error-50: #fef2f2;
+  --color-error-100: #fee2e2;
+  --color-error-200: #fecaca;
+  --color-error-300: #fca5a5;
+  --color-error-400: #f87171;
+  --color-error-500: #ef4444;
+  --color-error-600: #dc2626;
+  --color-error-700: #b91c1c;
+  --color-error-800: #991b1b;
+  --color-error-900: #7f1d1d;
+  --color-error-950: #450a0a;
+  
+  /* Neutral colors */
+  --color-neutral-0: #ffffff;
+  --color-neutral-50: #f9fafb;
+  --color-neutral-100: #f3f4f6;
+  --color-neutral-200: #e5e7eb;
+  --color-neutral-300: #d1d5db;
+  --color-neutral-400: #9ca3af;
+  --color-neutral-500: #6b7280;
+  --color-neutral-600: #4b5563;
+  --color-neutral-700: #374151;
+  --color-neutral-800: #1f2937;
+  --color-neutral-900: #111827;
+  --color-neutral-950: #030712;
+  
+  /* Primary color scale */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+  --color-primary-950: #172554;
+  
+  /* Border radius */
+  --radius: 0.5rem;
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+}
+
+.dark {
+  /* Dark theme color overrides in hex format */
+  --color-background: #1a1a1a;
+  --color-foreground: #fafafa;
+  --color-muted: #262626;
+  --color-muted-foreground: #a1a1aa;
+  --color-popover: #262626;
+  --color-popover-foreground: #fafafa;
+  --color-card: #262626;
+  --color-card-foreground: #fafafa;
+  --color-border: #404040;
+  --color-input: #404040;
+  --color-primary: #60a5fa;
+  --color-secondary: #404040;
+  --color-secondary-foreground: #fafafa;
+  --color-accent: #404040;
+  --color-accent-foreground: #fafafa;
+  --color-destructive: #f87171;
+  --color-ring: #60a5fa;
+}
+
 @layer base {
-  :root {
-    /* Light theme colors - using HSL format */
-    --background: 0 0% 100%;
-    --foreground: 220 14% 10%;
-    --muted: 220 14% 98%;
-    --muted-foreground: 220 9% 46%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 14% 10%;
-    --card: 0 0% 100%;
-    --card-foreground: 220 14% 10%;
-    --border: 220 13% 91%;
-    --input: 220 14% 98%;
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 9% 23%;
-    --accent: 220 14% 96%;
-    --accent-foreground: 220 9% 23%;
-    --destructive: 0 84% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 221 83% 53%;
-    --radius: 0.5rem;
-  }
-
-  .dark {
-    /* Dark theme colors - using HSL format */
-    --background: 220 14% 10%;
-    --foreground: 220 14% 98%;
-    --muted: 220 14% 16%;
-    --muted-foreground: 220 9% 68%;
-    --popover: 220 14% 16%;
-    --popover-foreground: 220 14% 98%;
-    --card: 220 14% 16%;
-    --card-foreground: 220 14% 98%;
-    --border: 220 13% 22%;
-    --input: 220 13% 22%;
-    --primary: 217 92% 60%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 13% 22%;
-    --secondary-foreground: 220 14% 98%;
-    --accent: 220 13% 22%;
-    --accent-foreground: 220 14% 98%;
-    --destructive: 0 75% 60%;
-    --destructive-foreground: 0 0% 100%;
-    --ring: 217 92% 60%;
-  }
-
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--color-border);
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    background-color: var(--color-background);
+    color: var(--color-foreground);
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -70,16 +137,16 @@
   }
 
   ::-webkit-scrollbar-track {
-    background-color: hsl(var(--muted));
+    background-color: var(--color-muted);
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--muted-foreground) / 0.3);
+    background-color: color-mix(in srgb, var(--color-muted-foreground) 30%, transparent);
     border-radius: 6px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background-color: hsl(var(--muted-foreground) / 0.5);
+    background-color: color-mix(in srgb, var(--color-muted-foreground) 50%, transparent);
   }
 
   .dark ::-webkit-scrollbar-track {
@@ -102,7 +169,7 @@
     border: 2px solid transparent;
     
     &:focus-visible {
-      outline: 2px solid hsl(var(--ring));
+      outline: 2px solid var(--color-ring);
       outline-offset: 2px;
     }
   }
@@ -120,63 +187,63 @@
   }
   
   .btn-primary {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
     
     &:hover {
-      background-color: hsl(var(--primary) / 0.9);
+      background-color: color-mix(in srgb, var(--color-primary) 90%, black);
     }
   }
   
   .btn-secondary {
-    background-color: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
-    border-color: hsl(var(--border));
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
+    border-color: var(--color-border);
     
     &:hover {
-      background-color: hsl(var(--secondary) / 0.8);
+      background-color: color-mix(in srgb, var(--color-secondary) 80%, black);
     }
   }
   
   .btn-outline {
-    background-color: hsl(var(--background));
-    border-color: hsl(var(--border));
+    background-color: var(--color-background);
+    border-color: var(--color-border);
     
     &:hover {
-      background-color: hsl(var(--accent));
-      color: hsl(var(--accent-foreground));
+      background-color: var(--color-accent);
+      color: var(--color-accent-foreground);
     }
   }
   
   .btn-ghost {
     &:hover {
-      background-color: hsl(var(--accent));
-      color: hsl(var(--accent-foreground));
+      background-color: var(--color-accent);
+      color: var(--color-accent-foreground);
     }
   }
   
   .btn-destructive {
-    background-color: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground));
+    background-color: var(--color-destructive);
+    color: var(--color-destructive-foreground);
     
     &:hover {
-      background-color: hsl(var(--destructive) / 0.9);
+      background-color: color-mix(in srgb, var(--color-destructive) 90%, black);
     }
   }
 
   /* Input Components */
   .input {
     @apply flex h-10 w-full rounded-md px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50;
-    border: 1px solid hsl(var(--border));
-    background-color: hsl(var(--input));
-    color: hsl(var(--foreground));
+    border: 1px solid var(--color-border);
+    background-color: var(--color-input);
+    color: var(--color-foreground);
     
     &::placeholder {
-      color: hsl(var(--muted-foreground));
+      color: var(--color-muted-foreground);
     }
     
     &:focus-visible {
-      outline: 2px solid hsl(var(--ring));
+      outline: 2px solid var(--color-ring);
       outline-offset: 2px;
     }
     
@@ -188,28 +255,28 @@
 
   .textarea {
     @apply flex min-h-[80px] w-full rounded-md px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50;
-    border: 1px solid hsl(var(--border));
-    background-color: hsl(var(--input));
-    color: hsl(var(--foreground));
+    border: 1px solid var(--color-border);
+    background-color: var(--color-input);
+    color: var(--color-foreground);
     
     &::placeholder {
-      color: hsl(var(--muted-foreground));
+      color: var(--color-muted-foreground);
     }
     
     &:focus-visible {
-      outline: 2px solid hsl(var(--ring));
+      outline: 2px solid var(--color-ring);
       outline-offset: 2px;
     }
   }
 
   .select {
     @apply flex h-10 w-full items-center justify-between rounded-md px-3 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50;
-    border: 1px solid hsl(var(--border));
-    background-color: hsl(var(--input));
-    color: hsl(var(--foreground));
+    border: 1px solid var(--color-border);
+    background-color: var(--color-input);
+    color: var(--color-foreground);
     
     &:focus {
-      outline: 2px solid hsl(var(--ring));
+      outline: 2px solid var(--color-ring);
       outline-offset: 2px;
     }
   }
@@ -217,9 +284,9 @@
   /* Card Components */
   .card {
     @apply rounded-lg shadow-sm;
-    background-color: hsl(var(--card));
-    color: hsl(var(--card-foreground));
-    border: 1px solid hsl(var(--border));
+    background-color: var(--color-card);
+    color: var(--color-card-foreground);
+    border: 1px solid var(--color-border);
   }
 
   .card-header {
@@ -231,7 +298,7 @@
   }
 
   .card-description {
-    color: hsl(var(--muted-foreground));
+    color: var(--color-muted-foreground);
     @apply text-sm;
   }
 
@@ -249,35 +316,35 @@
   }
 
   .badge-default {
-    background-color: hsl(var(--primary));
-    color: hsl(var(--primary-foreground));
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
     
     &:hover {
-      background-color: hsl(var(--primary) / 0.8);
+      background-color: color-mix(in srgb, var(--color-primary) 80%, black);
     }
   }
 
   .badge-secondary {
-    background-color: hsl(var(--secondary));
-    color: hsl(var(--secondary-foreground));
+    background-color: var(--color-secondary);
+    color: var(--color-secondary-foreground);
     
     &:hover {
-      background-color: hsl(var(--secondary) / 0.8);
+      background-color: color-mix(in srgb, var(--color-secondary) 80%, black);
     }
   }
 
   .badge-destructive {
-    background-color: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground));
+    background-color: var(--color-destructive);
+    color: var(--color-destructive-foreground);
     
     &:hover {
-      background-color: hsl(var(--destructive) / 0.8);
+      background-color: color-mix(in srgb, var(--color-destructive) 80%, black);
     }
   }
 
   .badge-outline {
-    border: 1px solid hsl(var(--border));
-    color: hsl(var(--foreground));
+    border: 1px solid var(--color-border);
+    color: var(--color-foreground);
   }
 
   .badge-success {
@@ -293,26 +360,26 @@
     @apply flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors;
     
     &:hover {
-      background-color: hsl(var(--accent));
-      color: hsl(var(--accent-foreground));
+      background-color: var(--color-accent);
+      color: var(--color-accent-foreground);
     }
   }
 
   .nav-link-active {
-    background-color: hsl(var(--accent));
-    color: hsl(var(--accent-foreground));
+    background-color: var(--color-accent);
+    color: var(--color-accent-foreground);
   }
 
   /* Alert Components */
   .alert {
     @apply relative w-full rounded-lg p-4;
-    border: 1px solid hsl(var(--border));
+    border: 1px solid var(--color-border);
   }
 
   .alert-info {
-    border-color: hsl(var(--primary) / 0.2);
-    background-color: hsl(var(--primary) / 0.05);
-    color: hsl(var(--primary));
+    border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+    background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+    color: var(--color-primary);
   }
 
   .alert-success {
@@ -330,22 +397,22 @@
   /* Form Components */
   .form-label {
     @apply text-sm font-medium leading-none;
-    color: hsl(var(--foreground));
+    color: var(--color-foreground);
   }
 
   .form-description {
     @apply text-sm;
-    color: hsl(var(--muted-foreground));
+    color: var(--color-muted-foreground);
   }
 
   .form-message {
     @apply text-sm font-medium;
-    color: hsl(var(--destructive));
+    color: var(--color-destructive);
   }
 
   /* Utility Classes */
   .text-gradient {
-    background: linear-gradient(to right, hsl(var(--primary)), #9333ea);
+    background: linear-gradient(to right, var(--color-primary), #9333ea);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;

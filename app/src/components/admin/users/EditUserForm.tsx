@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { ArrowLeft, Save } from 'lucide-react';
 import { userApi, departmentApi } from '../../../lib/adminApi';
 import type { UpdateUserRequest, Department } from '../../../types/admin';
+import { Button, Input, Select, Card, CardHeader, CardTitle, CardDescription, CardContent, Label } from '../../ui';
 import { useToast } from '../../../hooks/useToast';
 
 const updateUserSchema = z.object({
@@ -81,7 +82,7 @@ const EditUserForm = () => {
 
       fetchUser();
     }
-  }, [id, setValue, navigate, toast]);
+  }, [id, setValue]);
 
   const onSubmit = handleSubmit(async (data: UpdateUserFormData) => {
     try {
@@ -100,22 +101,25 @@ const EditUserForm = () => {
     return (
       <div className="space-y-6">
         <div className="flex items-center space-x-4">
-          <button
+          <Button
+            variant="outline"
             onClick={() => navigate('/admin/users')}
-            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+            className="flex items-center space-x-2"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </button>
-          <h1 className="text-2xl font-semibold text-gray-900">Edit User</h1>
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back</span>
+          </Button>
+          <h1 className="text-2xl font-semibold text-foreground">Edit User</h1>
         </div>
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="animate-pulse space-y-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded"></div>
-            ))}
-          </div>
-        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-4 bg-muted rounded"></div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -124,152 +128,140 @@ const EditUserForm = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-4">
-        <button
+        <Button
+          variant="outline"
           onClick={() => navigate('/admin/users')}
-          className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          className="flex items-center space-x-2"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
-        </button>
+          <ArrowLeft className="h-4 w-4" />
+          <span>Back</span>
+        </Button>
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Edit User</h1>
-          <p className="mt-1 text-sm text-gray-600">Update user information and settings</p>
+          <h1 className="text-2xl font-semibold text-foreground">Edit User</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Update user information and settings</p>
         </div>
       </div>
 
       {/* Form */}
-      <div className="bg-white shadow rounded-lg">
-        <form onSubmit={onSubmit} className="p-6 space-y-6">
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            {/* First Name */}
+      <Card>
+        <CardHeader>
+          <CardTitle>User Information</CardTitle>
+          <CardDescription>Update the user details and settings</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={onSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+              {/* First Name */}
+              <div>
+                <Label htmlFor="first_name" required>First Name</Label>
+                <Input
+                  type="text"
+                  id="first_name"
+                  {...register('first_name')}
+                  placeholder="Enter first name"
+                  error={!!errors.first_name}
+                />
+                {errors.first_name && (
+                  <p className="mt-1 text-sm text-destructive">{errors.first_name.message}</p>
+                )}
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <Label htmlFor="last_name" required>Last Name</Label>
+                <Input
+                  type="text"
+                  id="last_name"
+                  {...register('last_name')}
+                  placeholder="Enter last name"
+                  error={!!errors.last_name}
+                />
+                {errors.last_name && (
+                  <p className="mt-1 text-sm text-destructive">{errors.last_name.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Email */}
             <div>
-              <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-                First Name *
-              </label>
-              <input
-                type="text"
-                id="first_name"
-                {...register('first_name')}
-                className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                  errors.first_name ? 'border-red-300' : ''
-                }`}
-                placeholder="Enter first name"
+              <Label htmlFor="email" required>Email Address</Label>
+              <Input
+                type="email"
+                id="email"
+                {...register('email')}
+                placeholder="Enter email address"
+                error={!!errors.email}
               />
-              {errors.first_name && (
-                <p className="mt-1 text-sm text-red-600">{errors.first_name.message}</p>
+              {errors.email && (
+                <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 
-            {/* Last Name */}
+            {/* Department */}
             <div>
-              <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-                Last Name *
-              </label>
-              <input
-                type="text"
-                id="last_name"
-                {...register('last_name')}
-                className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                  errors.last_name ? 'border-red-300' : ''
-                }`}
-                placeholder="Enter last name"
-              />
-              {errors.last_name && (
-                <p className="mt-1 text-sm text-red-600">{errors.last_name.message}</p>
+              <Label htmlFor="department_id" required>Department</Label>
+              <Select
+                id="department_id"
+                {...register('department_id')}
+                error={!!errors.department_id}
+              >
+                <option value="">Select a department</option>
+                {departments?.map((department) => (
+                  <option key={department.department_id} value={department.department_id}>
+                    {department.department_name}
+                  </option>
+                ))}
+              </Select>
+              {errors.department_id && (
+                <p className="mt-1 text-sm text-destructive">{errors.department_id.message}</p>
               )}
             </div>
-          </div>
 
-          {/* Email */}
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-              Email Address *
-            </label>
-            <input
-              type="email"
-              id="email"
-              {...register('email')}
-              className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                errors.email ? 'border-red-300' : ''
-              }`}
-              placeholder="Enter email address"
-            />
-            {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
-            )}
-          </div>
+            {/* User Type and Status */}
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <input
+                  id="is_ai_user"
+                  type="checkbox"
+                  {...register('is_ai_user')}
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+                />
+                <Label htmlFor="is_ai_user" className="!mb-0">AI User</Label>
+              </div>
 
-          {/* Department */}
-          <div>
-            <label htmlFor="department_id" className="block text-sm font-medium text-gray-700">
-              Department *
-            </label>
-            <select
-              id="department_id"
-              {...register('department_id')}
-              className={`mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm ${
-                errors.department_id ? 'border-red-300' : ''
-              }`}
-            >
-              <option value="">Select a department</option>
-              {departments?.map((department) => (
-                <option key={department.department_id} value={department.department_id}>
-                  {department.department_name}
-                </option>
-              ))}
-            </select>
-            {errors.department_id && (
-              <p className="mt-1 text-sm text-red-600">{errors.department_id.message}</p>
-            )}
-          </div>
-
-          {/* User Type and Status */}
-          <div className="space-y-4">
-            <div className="flex items-center">
-              <input
-                id="is_ai_user"
-                type="checkbox"
-                {...register('is_ai_user')}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="is_ai_user" className="ml-2 block text-sm text-gray-900">
-                AI User
-              </label>
+              <div className="flex items-center space-x-2">
+                <input
+                  id="is_active"
+                  type="checkbox"
+                  {...register('is_active')}
+                  className="h-4 w-4 text-primary focus:ring-primary border-border rounded"
+                />
+                <Label htmlFor="is_active" className="!mb-0">Active User</Label>
+              </div>
             </div>
 
-            <div className="flex items-center">
-              <input
-                id="is_active"
-                type="checkbox"
-                {...register('is_active')}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="is_active" className="ml-2 block text-sm text-gray-900">
-                Active User
-              </label>
+            {/* Actions */}
+            <div className="flex justify-end space-x-3 pt-6 border-t border-border">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => navigate('/admin/users')}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="gradient"
+                disabled={isSubmitting}
+                className="flex items-center space-x-2"
+              >
+                <Save className="h-4 w-4" />
+                <span>{isSubmitting ? 'Updating...' : 'Update User'}</span>
+              </Button>
             </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={() => navigate('/admin/users')}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {isSubmitting ? 'Updating...' : 'Update User'}
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

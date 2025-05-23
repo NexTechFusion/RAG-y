@@ -13,6 +13,7 @@ import type {
   DepartmentStats,
   PaginationResponseDepartment,
   PaginationResponseUsers,
+  DepartmentPermissionResponse,
 } from '../types/admin';
 
 // Department API
@@ -80,7 +81,7 @@ export const departmentApi = {
   // Get department permissions
   getDepartmentPermissions: async (
     id: string
-  ): Promise<ApiResponse<{ permissions: DepartmentPermission[] }>> => {
+  ): Promise<ApiResponse<{ permissions: DepartmentPermissionResponse[] }>> => {
     const response = await api.get(`/departments/${id}/permissions`);
     return response.data;
   },
