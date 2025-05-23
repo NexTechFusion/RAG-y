@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authRoutes } from './auth.routes';
-// import { userRoutes } from './user.routes';
+import { userRoutes } from './user.routes';
 // import { departmentRoutes } from './department.routes';
 // import { documentRoutes } from './document.routes';
 // import { conversationRoutes } from './conversation.routes';
@@ -19,19 +19,21 @@ router.get('/test', (req, res) => {
       authRoutes: 'imported successfully',
       authController: 'imported successfully', 
       validation: 'imported successfully',
-      authValidation: 'imported successfully'
+      authValidation: 'imported successfully',
+      userRoutes: 'imported successfully',
+      userController: 'imported successfully',
+      userValidation: 'imported successfully'
     }
   });
 });
 
 // Mount routes
 router.use('/auth', authRoutes);
-// router.use('/users', userRoutes);
+router.use('/users', userRoutes);
 // router.use('/departments', departmentRoutes);
 // router.use('/documents', documentRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/messages', messageRoutes);
-// router.use('/ai-models', aiModelRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {
@@ -42,7 +44,7 @@ router.get('/', (req, res) => {
     endpoints: {
       auth: '/auth',
       test: '/test',
-      // users: '/users',
+      users: '/users',
       // departments: '/departments',
       // documents: '/documents',
       // conversations: '/conversations',
