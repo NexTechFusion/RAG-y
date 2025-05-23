@@ -8,7 +8,9 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
-  Users
+  Users,
+  Calendar,
+  FileText
 } from 'lucide-react';
 import { departmentApi } from '../../../lib/adminApi';
 import type { Department } from '../../../types/admin';
@@ -27,11 +29,11 @@ const DepartmentsList = () => {
       setLoading(true);
       
       const response = await departmentApi.getDepartments(currentPage, limit);
-      let filteredDepartments = response.data.data;
+      let filteredDepartments = response.data.departments;
 
       // Client-side search filtering since the API doesn't support search
       if (searchQuery) {
-        filteredDepartments = filtereddepartments?.filter(dept =>
+        filteredDepartments = filteredDepartments?.filter(dept =>
           dept.department_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           dept.description?.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -80,13 +82,15 @@ const DepartmentsList = () => {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-semibold text-gray-900">Departments</h1>
+          <h1 className="text-3xl font-bold text-gradient">Departments</h1>
         </div>
-        <div className="bg-white shadow rounded-lg p-6">
-          <div className="animate-pulse space-y-4">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-4 bg-gray-200 rounded"></div>
-            ))}
+        <div className="card animate-pulse">
+          <div className="card-content p-6">
+            <div className="space-y-4">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="h-4 bg-muted rounded"></div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -96,16 +100,16 @@ const DepartmentsList = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">Departments</h1>
-          <p className="mt-1 text-sm text-gray-600">
+          <h1 className="text-3xl font-bold text-gradient">Departments</h1>
+          <p className="mt-1 text-muted-foreground">
             Manage organizational departments and their permissions
           </p>
         </div>
         <Link
           to="/admin/departments/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="btn btn-primary btn-md"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Department
@@ -113,65 +117,71 @@ const DepartmentsList = () => {
       </div>
 
       {/* Search */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <form onSubmit={handleSearch} className="space-y-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            {/* Search */}
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Search
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name or description..."
-                  className="pl-10 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
+      <div className="card">
+        <div className="card-header">
+          <h2 className="card-title">Search & Filter</h2>
+          <p className="card-description">Find departments by name or description</p>
+        </div>
+        <div className="card-content">
+          <form onSubmit={handleSearch} className="space-y-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {/* Search */}
+              <div className="sm:col-span-2">
+                <label className="form-label">
+                  Search
+                </label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or description..."
+                    className="input pl-10"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-end space-x-2">
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-md"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="btn btn-outline btn-md"
+                >
+                  Clear
+                </button>
               </div>
             </div>
-
-            {/* Actions */}
-            <div className="flex items-end space-x-2">
-              <button
-                type="submit"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
-              >
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={resetFilters}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
 
       {/* Departments Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-medium text-gray-900">
+      <div className="card">
+        <div className="card-header">
+          <h2 className="card-title">
             Departments ({departments?.length} total)
           </h2>
         </div>
 
         {departments?.length === 0 ? (
-          <div className="p-6 text-center">
-            <Building2 className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No departments</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Get started by creating a new department.
-            </p>
-            <div className="mt-6">
+          <div className="card-content">
+            <div className="text-center py-12">
+              <Building2 className="mx-auto h-16 w-16 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No departments found</h3>
+              <p className="text-muted-foreground mb-6">
+                Get started by creating a new department or adjust your search.
+              </p>
               <Link
                 to="/admin/departments/new"
-                className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                className="btn btn-primary btn-md"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 New Department
@@ -180,99 +190,101 @@ const DepartmentsList = () => {
           </div>
         ) : (
           <>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Department
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Users
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Created
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {departments?.map((department) => (
-                    <tr key={department.department_id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-white" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {department.department_name}
+            <div className="card-content p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Department
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Users
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Created
+                      </th>
+                      <th className="px-6 py-4 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {departments?.map((department) => (
+                      <tr key={department.department_id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                              <Building2 className="h-5 w-5 text-white" />
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {department.department_name}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-gray-900 max-w-xs truncate">
-                          {department.description || 'No description'}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center text-sm text-gray-900">
-                          <Users className="h-4 w-4 mr-1 text-gray-400" />
-                          {department.user_count || 0}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            department.is_active
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}
-                        >
-                          {department.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(department.created_at).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <div className="flex items-center space-x-2">
-                          <Link
-                            to={`/admin/departments/${department.department_id}`}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="View Details"
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900 max-w-xs truncate">
+                            {department.description || 'No description'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center text-sm text-gray-900">
+                            <Users className="h-4 w-4 mr-1 text-gray-400" />
+                            {department.user_count || 0}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              department.is_active
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}
                           >
-                            <Building2 className="h-4 w-4" />
-                          </Link>
-                          <Link
-                            to={`/admin/departments/${department.department_id}/edit`}
-                            className="text-blue-600 hover:text-blue-900"
-                            title="Edit"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                          <button
-                            onClick={() => handleDeleteDepartment(department.department_id)}
-                            className="text-red-600 hover:text-red-900"
-                            title="Delete"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                            {department.is_active ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(department.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <div className="flex items-center space-x-2">
+                            <Link
+                              to={`/admin/departments/${department.department_id}`}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="View Details"
+                            >
+                              <Building2 className="h-4 w-4" />
+                            </Link>
+                            <Link
+                              to={`/admin/departments/${department.department_id}/edit`}
+                              className="text-blue-600 hover:text-blue-900"
+                              title="Edit"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Link>
+                            <button
+                              onClick={() => handleDeleteDepartment(department.department_id)}
+                              className="text-red-600 hover:text-red-900"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             {/* Pagination */}
