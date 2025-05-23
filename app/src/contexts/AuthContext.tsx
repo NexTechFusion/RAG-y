@@ -46,14 +46,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       const response = await authApi.login(credentials);
       
-      const { user: userData, accessToken, refreshToken } = response.data;
+      const { user: userData, access_token, refresh_token } = response.data;
+      
+      // Transform backend user data to frontend format
+      const transformedUser = {
+        id: userData.user_id,
+        email: userData.email,
+        firstName: userData.first_name,
+        lastName: userData.last_name,
+        departmentId: userData.department_id,
+        isActive: true, // Assuming user is active if login succeeds
+        createdAt: userData.created_at || new Date().toISOString(),
+        updatedAt: userData.updated_at || new Date().toISOString(),
+      };
       
       // Store tokens and user data
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(userData));
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('refreshToken', refresh_token);
+      localStorage.setItem('user', JSON.stringify(transformedUser));
       
-      setUser(userData);
+      setUser(transformedUser);
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -67,14 +79,26 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       setIsLoading(true);
       const response = await authApi.register(userData);
       
-      const { user: newUser, accessToken, refreshToken } = response.data;
+      const { user: newUser, access_token, refresh_token } = response.data;
+      
+      // Transform backend user data to frontend format
+      const transformedUser = {
+        id: newUser.user_id,
+        email: newUser.email,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        departmentId: newUser.department_id,
+        isActive: true, // Assuming user is active if registration succeeds
+        createdAt: newUser.created_at || new Date().toISOString(),
+        updatedAt: newUser.updated_at || new Date().toISOString(),
+      };
       
       // Store tokens and user data
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-      localStorage.setItem('user', JSON.stringify(newUser));
+      localStorage.setItem('accessToken', access_token);
+      localStorage.setItem('refreshToken', refresh_token);
+      localStorage.setItem('user', JSON.stringify(transformedUser));
       
-      setUser(newUser);
+      setUser(transformedUser);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;

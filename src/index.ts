@@ -24,14 +24,9 @@ class Application {
   private initializeMiddlewares(): void {
     // Security middleware
     this.app.use(helmet());
-    
+
     // CORS configuration
-    this.app.use(cors({
-      origin: config.cors.origin,
-      credentials: config.cors.credentials,
-      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-    }));
+    this.app.use(cors());
 
     // Rate limiting
     const limiter = rateLimit({
@@ -63,7 +58,7 @@ class Application {
 
   private initializeRoutes(): void {
     this.app.use(`/api/${config.apiVersion}`, routes);
-    
+
     // 404 handler
     this.app.use('*', (req, res) => {
       res.status(404).json({

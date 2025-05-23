@@ -32,18 +32,10 @@ export const RegisterForm = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const response = await api.get('/departments');
+        const response = await api.get('/auth/departments');
         setDepartments(response.data.data || []);
       } catch (error) {
         console.error('Error fetching departments:', error);
-        // Fallback departments if API fails
-        setDepartments([
-          { id: '1', name: 'IT' },
-          { id: '2', name: 'HR' },
-          { id: '3', name: 'Finance' },
-          { id: '4', name: 'Marketing' },
-          { id: '5', name: 'Operations' },
-        ]);
       } finally {
         setLoadingDepartments(false);
       }

@@ -6,6 +6,15 @@ import { logger } from '@utils/logger';
 export const validateRequest = (schema: ZodSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
+      // Log what we're about to validate
+      logger.debug('Validating request:', {
+        url: req.url,
+        method: req.method,
+        body: req.body,
+        query: req.query,
+        params: req.params,
+      });
+
       // Validate request body, query, and params
       const validationData = {
         body: req.body,
@@ -16,24 +25,61 @@ export const validateRequest = (schema: ZodSchema) => {
       const result = schema.safeParse(validationData);
 
       if (!result.success) {
-        const errorMessages = result.error.errors.map((error) => ({
-          field: error.path.join('.'),
-          message: error.message,
-        }));
+        const errorMessages = result.error.errors.map((error) => {
+          const fieldPath = error.path.join('.');
+          
+          // Safely get the received value
+          let received: any = validationData;
+          for (const key of error.path) {
+            if (received && typeof received === 'object' && key in received) {
+              received = received[key as keyof typeof received];
+            } else {
+              received = undefined;
+              break;
+            }
+          }
+          
+          return {
+            field: fieldPath,
+            message: error.message,
+            received: received,
+            code: error.code,
+          };
+        });
 
+        // Enhanced logging with more details
         logger.warn('Validation failed:', {
           url: req.url,
           method: req.method,
           errors: errorMessages,
+          receivedData: {
+            body: req.body,
+            query: req.query,
+            params: req.params,
+          },
+          zodErrors: result.error.errors, // Raw Zod errors for debugging
         });
 
-        throw new ValidationError('Validation failed', errorMessages);
+        // Create detailed error message
+        const detailedMessage = `Validation failed for ${req.method} ${req.url}. Errors: ${
+          errorMessages.map(err => `${err.field}: ${err.message} (received: ${JSON.stringify(err.received)})`).join(', ')
+        }`;
+
+        throw new ValidationError(detailedMessage, errorMessages.map(err => ({
+          field: err.field,
+          message: `${err.message} (received: ${JSON.stringify(err.received)})`
+        })));
       }
 
       // Replace request data with validated data
       req.body = result.data.body;
       req.query = result.data.query;
       req.params = result.data.params;
+
+      logger.debug('Validation successful:', {
+        url: req.url,
+        method: req.method,
+      });
 
       next();
     } catch (error) {
@@ -43,8 +89,21 @@ export const validateRequest = (schema: ZodSchema) => {
           message: err.message,
         }));
 
-        return next(new ValidationError('Validation failed', errorMessages));
+        logger.error('Zod validation error:', {
+          url: req.url,
+          method: req.method,
+          zodError: error,
+          formattedErrors: errorMessages,
+        });
+
+        return next(new ValidationError('Zod validation failed', errorMessages));
       }
+
+      logger.error('Unexpected validation error:', {
+        url: req.url,
+        method: req.method,
+        error: error,
+      });
 
       next(error);
     }

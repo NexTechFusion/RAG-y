@@ -11,12 +11,29 @@ export const api = axios.create({
   },
 });
 
+// List of public endpoints that don't need authentication
+const PUBLIC_ENDPOINTS = [
+  '/auth/login',
+  '/auth/register',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+  '/departments'
+];
+
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Check if this is a public endpoint
+    const isPublicEndpoint = PUBLIC_ENDPOINTS.some(endpoint => 
+      config.url?.includes(endpoint)
+    );
+
+    // Only add token for non-public endpoints
+    if (!isPublicEndpoint) {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -68,7 +85,17 @@ export const authApi = {
   },
 
   register: async (userData: RegisterRequest): Promise<AuthResponse> => {
-    const response = await api.post('/auth/register', userData);
+    // Transform frontend field names to backend field names
+    const transformedData = {
+      first_name: userData.firstName,
+      last_name: userData.lastName,
+      email: userData.email,
+      password: userData.password,
+      department_id: userData.departmentId,
+      is_ai_user: false
+    };
+
+    const response = await api.post('/auth/register', transformedData);
     return response.data;
   },
 

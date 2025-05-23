@@ -13,6 +13,18 @@ export interface User {
   updatedAt: string;
 }
 
+// Backend user structure (as received from API)
+export interface BackendUser {
+  user_id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  department_id: string;
+  is_ai_user?: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
@@ -26,12 +38,13 @@ export interface RegisterRequest {
   departmentId: string;
 }
 
+// Backend response structure
 export interface AuthResponse {
   success: boolean;
   data: {
-    user: User;
-    accessToken: string;
-    refreshToken: string;
+    user: BackendUser;
+    access_token: string;
+    refresh_token: string;
   };
   message: string;
 }

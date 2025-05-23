@@ -106,4 +106,8 @@ class MigrationRunner {
 //   runner.run().catch(console.error);
 // }
 
+// Run migrations when this file is executed directly
+const runner = new MigrationRunner();
+runner.run().catch(console.error);
+
 export { MigrationRunner }; 

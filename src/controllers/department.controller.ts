@@ -371,4 +371,17 @@ export class DepartmentController {
       data: stats,
     });
   }
+
+  // Public method to get basic department info for registration
+  static async getPublicDepartments(): Promise<any[]> {
+    logger.info('Controller: Get public departments for registration');
+    
+    const result = await DepartmentService.getDepartments(1, 100, { is_active: true });
+    
+    return result.departments.map(dept => ({
+      id: dept.department_id,
+      name: dept.department_name,
+      description: dept.description
+    }));
+  }
 } 
