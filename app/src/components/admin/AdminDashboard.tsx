@@ -129,7 +129,7 @@ const AdminDashboard = () => {
         <div className="relative bg-gradient-to-r from-background/80 to-muted/40 backdrop-blur-sm rounded-3xl p-8 border border-border/50">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent mb-3">
+              <h1 className="text-4xl font-bold text-foreground mb-3">
                 Dashboard
               </h1>
               <p className="text-lg text-muted-foreground">

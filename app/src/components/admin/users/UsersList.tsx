@@ -21,6 +21,8 @@ import {
 } from 'lucide-react';
 import { userApi, departmentApi } from '../../../lib/adminApi';
 import type { AdminUser, Department } from '../../../types/admin';
+import { Button, Input, Select, Card, CardHeader, CardTitle, CardDescription, CardContent, Badge, Label } from '../../ui';
+import { useToast } from '../../../hooks/useToast';
 
 const UsersList = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -34,6 +36,8 @@ const UsersList = () => {
   const [total, setTotal] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const limit = 12;
+
+  const { toast } = useToast();
 
   const fetchUsers = async () => {
     try {
@@ -88,7 +92,7 @@ const UsersList = () => {
       fetchUsers(); // Refresh the list
     } catch (error) {
       console.error('Failed to delete user:', error);
-      alert('Failed to deactivate user');
+      toast.error('Failed to deactivate user', 'Please try again later.');
     }
   };
 
@@ -103,7 +107,7 @@ const UsersList = () => {
     return (
       <div className="space-y-8">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">Users</h1>
+          <h1 className="text-4xl font-bold text-foreground">Users</h1>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -132,7 +136,7 @@ const UsersList = () => {
                 </div>
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold text-foreground">
                   Users
                 </h1>
                 <p className="text-lg text-muted-foreground">
@@ -163,12 +167,11 @@ const UsersList = () => {
                   <List className="h-4 w-4" />
                 </button>
               </div>
-              <Link
-                to="/admin/users/new"
-                className="flex items-center space-x-2 bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200 hover:scale-105"
-              >
-                <Plus className="h-5 w-5" />
-                <span>Add User</span>
+              <Link to="/admin/users/new">
+                <Button variant="gradient" size="lg" className="flex items-center space-x-2">
+                  <Plus className="h-5 w-5" />
+                  <span>Add User</span>
+                </Button>
               </Link>
             </div>
           </div>
@@ -192,30 +195,22 @@ const UsersList = () => {
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
               {/* Search */}
               <div className="lg:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Search Users
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by name or email..."
-                    className="w-full pl-12 pr-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                  />
-                </div>
+                <Label>Search Users</Label>
+                <Input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name or email..."
+                  icon={<Search className="h-5 w-5 text-muted-foreground" />}
+                />
               </div>
 
               {/* Department Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Department
-                </label>
-                <select
+                <Label>Department</Label>
+                <Select
                   value={selectedDepartment}
-                  onChange={(e) => setSelectedDepartment(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedDepartment(e.target.value)}
                 >
                   <option value="">All Departments</option>
                   {departments?.map((dept) => (
@@ -223,23 +218,20 @@ const UsersList = () => {
                       {dept.department_name}
                     </option>
                   ))}
-                </select>
+                </Select>
               </div>
 
               {/* User Type Filter */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  User Type
-                </label>
-                <select
+                <Label>User Type</Label>
+                <Select
                   value={selectedUserType}
-                  onChange={(e) => setSelectedUserType(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-background/50 backdrop-blur-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedUserType(e.target.value)}
                 >
                   <option value="">All Users</option>
                   <option value="human">Human Users</option>
                   <option value="ai">AI Users</option>
-                </select>
+                </Select>
               </div>
             </div>
 
@@ -250,19 +242,16 @@ const UsersList = () => {
                 <span>{total} users found</span>
               </div>
               <div className="flex items-center space-x-3">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={resetFilters}
-                  className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground border border-border rounded-lg hover:bg-accent transition-colors"
                 >
                   Clear
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2 text-sm font-medium bg-gradient-to-r from-primary to-purple-500 text-white rounded-lg hover:shadow-lg transition-all duration-200"
-                >
+                </Button>
+                <Button type="submit" variant="secondary">
                   Apply Filters
-                </button>
+                </Button>
               </div>
             </div>
           </form>
@@ -283,12 +272,11 @@ const UsersList = () => {
             <p className="text-muted-foreground mb-8">
               Try adjusting your filters or create a new user to get started.
             </p>
-            <Link
-              to="/admin/users/new"
-              className="inline-flex items-center space-x-2 bg-gradient-to-r from-primary to-purple-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all duration-200"
-            >
-              <Plus className="h-5 w-5" />
-              <span>Create User</span>
+            <Link to="/admin/users/new">
+              <Button variant="gradient" size="lg" className="flex items-center space-x-2">
+                <Plus className="h-5 w-5" />
+                <span>Create User</span>
+              </Button>
             </Link>
           </div>
         </div>
@@ -340,12 +328,12 @@ const UsersList = () => {
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={`badge ${user.is_ai_user ? 'badge-secondary' : 'badge-default'}`}>
+                  <Badge variant={user.is_ai_user ? 'secondary' : 'default'}>
                     {user.is_ai_user ? 'AI User' : 'Human'}
-                  </span>
-                  <span className={`badge ${user.is_active ? 'badge-success' : 'badge-destructive'}`}>
+                  </Badge>
+                  <Badge variant={user.is_active ? 'success' : 'destructive'}>
                     {user.is_active ? 'Active' : 'Inactive'}
-                  </span>
+                  </Badge>
                 </div>
                 <div className="flex items-center text-xs text-muted-foreground">
                   <Calendar className="h-3 w-3 mr-1" />
@@ -357,7 +345,7 @@ const UsersList = () => {
               <div className="flex items-center space-x-2">
                 <Link
                   to={`/admin/users/${user.user_id}/edit`}
-                  className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 rounded-lg transition-colors"
+                  className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium bg-secondary/50 hover:bg-secondary/80 text-secondary-foreground rounded-lg transition-all duration-200"
                 >
                   <Edit className="h-4 w-4 mr-1" />
                   Edit
@@ -400,9 +388,9 @@ const UsersList = () => {
                       <h3 className="font-medium text-foreground">
                         {user.first_name} {user.last_name}
                       </h3>
-                      <span className={`badge badge-sm ${user.is_ai_user ? 'badge-secondary' : 'badge-default'}`}>
+                      <Badge variant={user.is_ai_user ? 'secondary' : 'default'} size="sm">
                         {user.is_ai_user ? 'AI' : 'Human'}
-                      </span>
+                      </Badge>
                     </div>
                     <div className="flex items-center text-sm text-muted-foreground">
                       <Mail className="h-3 w-3 mr-1" />
@@ -413,9 +401,9 @@ const UsersList = () => {
                   </div>
 
                   <div className="flex items-center space-x-4">
-                    <span className={`badge ${user.is_active ? 'badge-success' : 'badge-destructive'}`}>
+                    <Badge variant={user.is_active ? 'success' : 'destructive'}>
                       {user.is_active ? 'Active' : 'Inactive'}
-                    </span>
+                    </Badge>
                     <div className="text-xs text-muted-foreground">
                       {user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'}
                     </div>
@@ -451,23 +439,27 @@ const UsersList = () => {
             {Math.min(currentPage * limit, total)} of {total} users
           </div>
           <div className="flex items-center space-x-2">
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background/50 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-10 h-10 p-0"
             >
               <ChevronLeft className="h-4 w-4" />
-            </button>
+            </Button>
             <span className="text-sm text-foreground px-4 py-2 bg-primary/10 rounded-lg">
               {currentPage} of {totalPages}
             </span>
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background/50 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-10 h-10 p-0"
             >
               <ChevronRight className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
         </div>
       )}

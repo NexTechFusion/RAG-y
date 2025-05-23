@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { ArrowLeft, Save } from 'lucide-react';
 import { userApi, departmentApi } from '../../../lib/adminApi';
 import type { UpdateUserRequest, Department } from '../../../types/admin';
+import { useToast } from '../../../hooks/useToast';
 
 const updateUserSchema = z.object({
   first_name: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
@@ -23,6 +24,7 @@ const EditUserForm = () => {
   const { id } = useParams();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   const {
     register,
@@ -70,7 +72,7 @@ const EditUserForm = () => {
           setValue('is_active', user.is_active);
         } catch (error) {
           console.error('Failed to fetch user:', error);
-          alert('Failed to load user data');
+          toast.error('Failed to load user data', 'Unable to retrieve user information.');
           navigate('/admin/users');
         } finally {
           setLoading(false);
@@ -79,18 +81,18 @@ const EditUserForm = () => {
 
       fetchUser();
     }
-  }, [id, setValue, navigate]);
+  }, [id, setValue, navigate, toast]);
 
   const onSubmit = handleSubmit(async (data: UpdateUserFormData) => {
     try {
       if (!id) return;
       await userApi.updateUser(id, data as UpdateUserRequest);
-      alert('User updated successfully');
+      toast.success('User updated successfully', 'The user information has been updated.');
       navigate('/admin/users');
     } catch (error: any) {
       console.error('Failed to update user:', error);
       const message = error.response?.data?.message || 'Failed to update user';
-      alert(message);
+      toast.error('Update failed', message);
     }
   });
 

@@ -5,6 +5,7 @@ import { departmentRoutes } from './department.routes';
 import { documentRoutes } from './document.routes';
 // import { conversationRoutes } from './conversation.routes';
 // import { messageRoutes } from './message.routes';
+// import { permissionRoutes } from './permission.routes';
 // import { aiModelRoutes } from './aiModel.routes';
 
 const router = Router();
