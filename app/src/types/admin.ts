@@ -12,10 +12,12 @@ export interface Department {
 
 export interface Permission {
   permission_id: string;
-  name: string;
+  permission_name: string;
   description?: string;
+  category?: string;
+  is_active: boolean;
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
 }
 
 export interface DepartmentPermission {

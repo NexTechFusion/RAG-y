@@ -31,6 +31,13 @@ INSERT INTO permissions (permission_name, description, category) VALUES
 ('delete_users', 'Deactivate user accounts', 'users'),
 ('manage_permissions', 'Assign and modify user permissions', 'users'),
 
+-- Permission management permissions
+('view_permissions', 'View permission lists and details', 'permissions'),
+('create_permissions', 'Create new system permissions', 'permissions'),
+('edit_permissions', 'Edit existing permissions', 'permissions'),
+('delete_permissions', 'Deactivate permissions', 'permissions'),
+('manage_department_permissions', 'Assign and remove permissions from departments', 'permissions'),
+
 -- Admin permissions
 ('view_analytics', 'Access usage analytics and reports', 'admin'),
 ('manage_ai_models', 'Configure and manage AI models', 'admin'),
@@ -69,6 +76,7 @@ BEGIN
         'view_documents', 'create_documents', 'edit_documents', 'manage_folders',
         'view_conversations', 'create_conversations', 'manage_conversations',
         'view_users', 'create_users', 'edit_users',
+        'view_permissions', 'manage_department_permissions',
         'view_analytics', 'manage_ai_models', 'system_settings', 'audit_logs'
     );
 
@@ -78,7 +86,8 @@ BEGIN
     WHERE permission_name IN (
         'view_documents', 'create_documents', 'edit_documents',
         'view_conversations', 'create_conversations',
-        'view_users', 'create_users', 'edit_users', 'manage_permissions'
+        'view_users', 'create_users', 'edit_users', 'manage_permissions',
+        'view_permissions', 'manage_department_permissions'
     );
 
     -- Finance department permissions

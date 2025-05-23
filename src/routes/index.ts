@@ -5,7 +5,7 @@ import { departmentRoutes } from './department.routes';
 import { documentRoutes } from './document.routes';
 // import { conversationRoutes } from './conversation.routes';
 // import { messageRoutes } from './message.routes';
-// import { permissionRoutes } from './permission.routes';
+import { permissionRoutes } from './permission.routes';
 // import { aiModelRoutes } from './aiModel.routes';
 
 const router = Router();
@@ -30,6 +30,10 @@ router.get('/test', (req, res) => {
       departmentController: 'imported successfully',
       departmentValidation: 'imported successfully',
       departmentService: 'imported successfully',
+      permissionRoutes: 'imported successfully',
+      permissionController: 'imported successfully',
+      permissionValidation: 'imported successfully',
+      permissionService: 'imported successfully',
       permissionModel: 'imported successfully'
     },
     layers: {
@@ -47,6 +51,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/departments', departmentRoutes);
 router.use('/documents', documentRoutes);
+router.use('/permissions', permissionRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/messages', messageRoutes);
 
@@ -63,6 +68,7 @@ router.get('/', (req, res) => {
       users: '/users',
       departments: '/departments',
       documents: '/documents',
+      permissions: '/permissions',
       // conversations: '/conversations',
       // messages: '/messages',
       // aiModels: '/ai-models',

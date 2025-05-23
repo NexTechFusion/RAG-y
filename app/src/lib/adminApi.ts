@@ -186,4 +186,111 @@ export const userApi = {
     const response = await api.get('/users/me');
     return response.data;
   },
+};
+
+// Permission API
+export const permissionApi = {
+  // Get all permissions with optional category filtering
+  getPermissions: async (filters?: {
+    category?: string;
+  }): Promise<ApiResponse<{ permissions: Permission[] }>> => {
+    const params = new URLSearchParams();
+    if (filters?.category) {
+      params.append('category', filters.category);
+    }
+    const response = await api.get(`/permissions?${params.toString()}`);
+    return response.data;
+  },
+
+  // Get permission by ID
+  getPermissionById: async (id: string): Promise<ApiResponse<{ permission: Permission }>> => {
+    const response = await api.get(`/permissions/${id}`);
+    return response.data;
+  },
+
+  // Get all permission categories
+  getCategories: async (): Promise<ApiResponse<{ categories: string[] }>> => {
+    const response = await api.get('/permissions/categories');
+    return response.data;
+  },
+
+  // Get permissions by category
+  getPermissionsByCategory: async (category: string): Promise<ApiResponse<{ permissions: Permission[] }>> => {
+    const response = await api.get(`/permissions/category/${category}`);
+    return response.data;
+  },
+
+  // Create new permission
+  createPermission: async (data: {
+    permission_name: string;
+    description?: string;
+    category: string;
+  }): Promise<ApiResponse<{ permission: Permission }>> => {
+    const response = await api.post('/permissions', data);
+    return response.data;
+  },
+
+  // Update permission
+  updatePermission: async (
+    id: string,
+    data: {
+      permission_name?: string;
+      description?: string;
+      category?: string;
+      is_active?: boolean;
+    }
+  ): Promise<ApiResponse<{ permission: Permission }>> => {
+    const response = await api.put(`/permissions/${id}`, data);
+    return response.data;
+  },
+
+  // Delete permission (deactivate)
+  deletePermission: async (id: string): Promise<ApiResponse<null>> => {
+    const response = await api.delete(`/permissions/${id}`);
+    return response.data;
+  },
+
+  // Get permissions for a specific department
+  getDepartmentPermissions: async (
+    departmentId: string
+  ): Promise<ApiResponse<{ permissions: Permission[] }>> => {
+    const response = await api.get(`/permissions/department/${departmentId}`);
+    return response.data;
+  },
+
+  // Get available permissions for a department (not yet assigned)
+  getAvailablePermissionsForDepartment: async (
+    departmentId: string
+  ): Promise<ApiResponse<{ permissions: Permission[] }>> => {
+    const response = await api.get(`/permissions/department/${departmentId}/available`);
+    return response.data;
+  },
+
+  // Get permissions for a specific user
+  getUserPermissions: async (
+    userId: string
+  ): Promise<ApiResponse<{ permissions: Permission[] }>> => {
+    const response = await api.get(`/permissions/user/${userId}`);
+    return response.data;
+  },
+
+  // Assign permission to department
+  assignPermissionToDepartment: async (
+    departmentId: string,
+    permissionId: string
+  ): Promise<ApiResponse<null>> => {
+    const response = await api.post(`/permissions/department/${departmentId}/assign`, {
+      permission_id: permissionId,
+    });
+    return response.data;
+  },
+
+  // Remove permission from department
+  removePermissionFromDepartment: async (
+    departmentId: string,
+    permissionId: string
+  ): Promise<ApiResponse<null>> => {
+    const response = await api.delete(`/permissions/department/${departmentId}/permission/${permissionId}`);
+    return response.data;
+  },
 }; 

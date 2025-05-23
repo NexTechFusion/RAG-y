@@ -16,6 +16,8 @@ import CreateDepartmentForm from './components/admin/departments/CreateDepartmen
 import DepartmentDetail from './components/admin/departments/DepartmentDetail';
 import EditDepartmentForm from './components/admin/departments/EditDepartmentForm';
 import { ToastProvider } from './components/ui/Toast';
+import PermissionsList from './components/admin/permissions/PermissionsList';
+import { CreatePermissionForm, EditPermissionForm } from './components/admin/permissions';
 
 function App() {
   return (
@@ -64,8 +66,11 @@ function App() {
                   <Route path="departments/:id/edit" element={<EditDepartmentForm />} />
                   
                   {/* Permissions Management */}
-                  {/* <Route path="permissions" element={<PermissionsList />} /> */}
-                  
+                  <Route path="permissions" element={<PermissionsList />} />
+                  <Route path="permissions/new" element={<CreatePermissionForm />} />
+                  <Route path="permissions/:id/edit" element={<EditPermissionForm />} />
+
+
                   {/* Settings */}
                   {/* <Route path="settings" element={<AdminSettings />} /> */}
                 </Route>
