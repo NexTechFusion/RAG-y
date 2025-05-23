@@ -99,7 +99,7 @@ export class UserController {
       }
 
       // Check if user can access this user's data
-      if (req.user?.user_id !== id && !req.user?.permissions.includes('users.read')) {
+      if (req.user?.user_id !== id && !req.user?.permissions.includes('view_users')) {
         throw new ForbiddenError('Access denied');
       }
 
@@ -203,12 +203,12 @@ export class UserController {
 
     try {
       // Check if user can update this user's data
-      if (req.user?.user_id !== id && !req.user?.permissions.includes('users.update')) {
+      if (req.user?.user_id !== id && !req.user?.permissions.includes('edit_users')) {
         throw new ForbiddenError('Access denied');
       }
 
       // If non-admin user trying to update sensitive fields
-      if (req.user?.user_id === id && !req.user?.permissions.includes('users.update')) {
+      if (req.user?.user_id === id && !req.user?.permissions.includes('edit_users')) {
         const restrictedFields = ['department_id', 'is_active', 'is_ai_user'];
         const hasRestrictedFields = restrictedFields.some(field => field in updateData);
         
@@ -308,8 +308,8 @@ export class UserController {
     });
 
     try {
-      // Only allow password change if user is changing their own password or has admin permission
-      if (req.user?.user_id !== id && !req.user?.permissions.includes('users.update')) {
+      // Check if user can change this user's password
+      if (req.user?.user_id !== id && !req.user?.permissions.includes('edit_users')) {
         throw new ForbiddenError('Access denied');
       }
 

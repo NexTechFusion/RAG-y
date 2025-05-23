@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authRoutes } from './auth.routes';
 import { userRoutes } from './user.routes';
-// import { departmentRoutes } from './department.routes';
+import { departmentRoutes } from './department.routes';
 // import { documentRoutes } from './document.routes';
 // import { conversationRoutes } from './conversation.routes';
 // import { messageRoutes } from './message.routes';
@@ -15,6 +15,7 @@ router.get('/test', (req, res) => {
     success: true,
     message: 'All imports working correctly!',
     timestamp: new Date().toISOString(),
+    architecture: 'Clean Architecture with Service Layer',
     imports: {
       authRoutes: 'imported successfully',
       authController: 'imported successfully', 
@@ -22,7 +23,20 @@ router.get('/test', (req, res) => {
       authValidation: 'imported successfully',
       userRoutes: 'imported successfully',
       userController: 'imported successfully',
-      userValidation: 'imported successfully'
+      userValidation: 'imported successfully',
+      userService: 'imported successfully',
+      departmentRoutes: 'imported successfully',
+      departmentController: 'imported successfully',
+      departmentValidation: 'imported successfully',
+      departmentService: 'imported successfully',
+      permissionModel: 'imported successfully'
+    },
+    layers: {
+      controllers: 'Handle HTTP requests/responses only',
+      services: 'Contain business logic and validation',
+      models: 'Handle data access and database operations',
+      middleware: 'Handle cross-cutting concerns',
+      validation: 'Handle input validation and sanitization'
     }
   });
 });
@@ -30,7 +44,7 @@ router.get('/test', (req, res) => {
 // Mount routes
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
-// router.use('/departments', departmentRoutes);
+router.use('/departments', departmentRoutes);
 // router.use('/documents', documentRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/messages', messageRoutes);
@@ -41,11 +55,12 @@ router.get('/', (req, res) => {
     name: 'AI Chat Application API',
     version: '1.0.0',
     description: 'RESTful API for AI-powered chat application with document management',
+    architecture: 'Clean Architecture with Service Layer Pattern',
     endpoints: {
       auth: '/auth',
       test: '/test',
       users: '/users',
-      // departments: '/departments',
+      departments: '/departments',
       // documents: '/documents',
       // conversations: '/conversations',
       // messages: '/messages',

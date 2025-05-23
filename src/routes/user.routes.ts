@@ -17,47 +17,47 @@ router.get('/me',
   asyncHandler(UserController.getCurrentUser)
 );
 
-// Get all users (requires users.read permission)
+// Get all users (requires view_users permission)
 router.get('/', 
   authenticateToken,
-  requirePermission('users.read'),
+  requirePermission('view_users'),
   validateRequest(userValidation.getUsersList),
   asyncHandler(UserController.getUsers)
 );
 
-// Get user by ID (users can view their own profile, or need users.read permission)
+// Get user by ID (users can view their own profile, or need view_users permission)
 router.get('/:id', 
   authenticateToken,
   validateRequest(userValidation.getUserById),
   asyncHandler(UserController.getUserById)
 );
 
-// Create new user (requires users.create permission)
+// Create new user (requires create_users permission)
 router.post('/', 
   authenticateToken,
-  requirePermission('users.create'),
+  requirePermission('create_users'),
   validateRequest(userValidation.createUser),
   asyncHandler(UserController.createUser)
 );
 
-// Update user (users can update their own profile, or need users.update permission)
+// Update user (users can update their own profile, or need edit_users permission)
 router.put('/:id', 
   authenticateToken,
   validateRequest(userValidation.updateUser),
   asyncHandler(UserController.updateUser)
 );
 
-// Change user password (users can change their own password, or need users.update permission)
+// Change user password (users can change their own password, or need edit_users permission)
 router.patch('/:id/password', 
   authenticateToken,
   validateRequest(userValidation.changeUserPassword),
   asyncHandler(UserController.changeUserPassword)
 );
 
-// Delete/deactivate user (requires users.delete permission)
+// Delete/deactivate user (requires delete_users permission)
 router.delete('/:id', 
   authenticateToken,
-  requirePermission('users.delete'),
+  requirePermission('delete_users'),
   validateRequest(userValidation.deleteUser),
   asyncHandler(UserController.deleteUser)
 );
