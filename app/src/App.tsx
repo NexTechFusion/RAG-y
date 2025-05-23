@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { LoginForm } from './components/auth/LoginForm';
 import { RegisterForm } from './components/auth/RegisterForm';
 import { Dashboard } from './components/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { UIShowcase } from './components/UIShowcase';
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './components/admin/AdminDashboard';
 import UsersList from './components/admin/users/UsersList';
@@ -13,63 +15,66 @@ import DepartmentsList from './components/admin/departments/DepartmentsList';
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
-            {/* Public routes */}
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/register" element={<RegisterForm />} />
-            
-            {/* Protected routes */}
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
+    <ThemeProvider defaultTheme="system" storageKey="rag-y-theme">
+      <AuthProvider>
+        <Router>
+          <div className="App min-h-screen bg-background text-foreground">
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="/showcase" element={<UIShowcase />} />
+              
+              {/* Protected routes */}
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Admin routes */}
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <AdminLayout />
-                </ProtectedRoute>
-              }
-            >
-              {/* Admin Dashboard */}
-              <Route index element={<AdminDashboard />} />
+              {/* Admin routes */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute>
+                    <AdminLayout />
+                  </ProtectedRoute>
+                }
+              >
+                {/* Admin Dashboard */}
+                <Route index element={<AdminDashboard />} />
+                
+                {/* User Management */}
+                <Route path="users" element={<UsersList />} />
+                <Route path="users/new" element={<CreateUserForm />} />
+                <Route path="users/:id/edit" element={<EditUserForm />} />
+                
+                {/* Department Management */}
+                <Route path="departments" element={<DepartmentsList />} />
+                {/* <Route path="departments/new" element={<CreateDepartmentForm />} />
+                <Route path="departments/:id" element={<DepartmentDetail />} />
+                <Route path="departments/:id/edit" element={<EditDepartmentForm />} /> */}
+                
+                {/* Permissions Management */}
+                {/* <Route path="permissions" element={<PermissionsList />} /> */}
+                
+                {/* Settings */}
+                {/* <Route path="settings" element={<AdminSettings />} /> */}
+              </Route>
               
-              {/* User Management */}
-              <Route path="users" element={<UsersList />} />
-              <Route path="users/new" element={<CreateUserForm />} />
-              <Route path="users/:id/edit" element={<EditUserForm />} />
+              {/* Default redirect */}
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
               
-              {/* Department Management */}
-              <Route path="departments" element={<DepartmentsList />} />
-              {/* <Route path="departments/new" element={<CreateDepartmentForm />} />
-              <Route path="departments/:id" element={<DepartmentDetail />} />
-              <Route path="departments/:id/edit" element={<EditDepartmentForm />} /> */}
-              
-              {/* Permissions Management */}
-              {/* <Route path="permissions" element={<PermissionsList />} /> */}
-              
-              {/* Settings */}
-              {/* <Route path="settings" element={<AdminSettings />} /> */}
-            </Route>
-            
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+              {/* Catch all route */}
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

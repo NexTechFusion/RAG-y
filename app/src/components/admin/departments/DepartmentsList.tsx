@@ -216,67 +216,73 @@ const DepartmentsList = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {departments?.map((department) => (
-                      <tr key={department.department_id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="h-10 w-10 bg-blue-500 rounded-lg flex items-center justify-center">
-                              <Building2 className="h-5 w-5 text-white" />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {department.department_name}
+                    {departments?.map((department, index) => (
+                      <tr key={department.department_id} className="border-b border-border hover:bg-accent/30 transition-colors group">
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="relative">
+                              <div className="h-12 w-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+                                <Building2 className="h-6 w-6 text-white" />
                               </div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-foreground">
+                                {department.department_name}
+                              </h3>
                             </div>
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 max-w-xs truncate">
-                            {department.description || 'No description'}
+                          <div className="text-sm text-muted-foreground max-w-xs">
+                            <FileText className="h-4 w-4 inline mr-2" />
+                            <span className="line-clamp-2">
+                              {department.description || 'No description available'}
+                            </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center text-sm text-gray-900">
-                            <Users className="h-4 w-4 mr-1 text-gray-400" />
-                            {department.user_count || 0}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center space-x-2">
+                            <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
+                              <Users className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <span className="font-medium text-foreground">
+                              {department.user_count || 0}
+                            </span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                              department.is_active
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
+                        <td className="px-6 py-4">
+                          <span className={`badge ${department.is_active ? 'badge-success' : 'badge-destructive'}`}>
                             {department.is_active ? 'Active' : 'Inactive'}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(department.created_at).toLocaleDateString()}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center text-sm text-muted-foreground">
+                            <Calendar className="h-4 w-4 mr-2" />
+                            {new Date(department.created_at).toLocaleDateString()}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <td className="px-6 py-4">
                           <div className="flex items-center space-x-2">
                             <Link
                               to={`/admin/departments/${department.department_id}`}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors group"
                               title="View Details"
                             >
-                              <Building2 className="h-4 w-4" />
+                              <Building2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
                             </Link>
                             <Link
                               to={`/admin/departments/${department.department_id}/edit`}
-                              className="text-blue-600 hover:text-blue-900"
+                              className="p-2 text-orange-500 hover:bg-orange-500/10 rounded-lg transition-colors group"
                               title="Edit"
                             >
-                              <Edit className="h-4 w-4" />
+                              <Edit className="h-4 w-4 group-hover:scale-110 transition-transform" />
                             </Link>
                             <button
                               onClick={() => handleDeleteDepartment(department.department_id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-colors group"
                               title="Delete"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
                             </button>
                           </div>
                         </td>
@@ -289,31 +295,31 @@ const DepartmentsList = () => {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-                <div className="text-sm text-gray-700">
-                  Showing {(currentPage - 1) * limit + 1} to{' '}
-                  {Math.min(currentPage * limit, total)} of {total} results
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="h-5 w-5" />
-                  </button>
-                  <span className="text-sm text-gray-700">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <button
-                    onClick={() =>
-                      setCurrentPage(Math.min(totalPages, currentPage + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRight className="h-5 w-5" />
-                  </button>
+              <div className="card-footer">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Showing {(currentPage - 1) * limit + 1} to{' '}
+                    {Math.min(currentPage * limit, total)} of {total} departments
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                      disabled={currentPage === 1}
+                      className="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background/50 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <span className="text-sm text-foreground px-4 py-2 bg-primary/10 rounded-lg">
+                      {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                      disabled={currentPage === totalPages}
+                      className="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background/50 hover:bg-accent disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
