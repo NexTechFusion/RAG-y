@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authRoutes } from './auth.routes';
 import { userRoutes } from './user.routes';
 import { departmentRoutes } from './department.routes';
-// import { documentRoutes } from './document.routes';
+import { documentRoutes } from './document.routes';
 // import { conversationRoutes } from './conversation.routes';
 // import { messageRoutes } from './message.routes';
 // import { aiModelRoutes } from './aiModel.routes';
@@ -45,7 +45,7 @@ router.get('/test', (req, res) => {
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/departments', departmentRoutes);
-// router.use('/documents', documentRoutes);
+router.use('/documents', documentRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/messages', messageRoutes);
 
@@ -61,7 +61,7 @@ router.get('/', (req, res) => {
       test: '/test',
       users: '/users',
       departments: '/departments',
-      // documents: '/documents',
+      documents: '/documents',
       // conversations: '/conversations',
       // messages: '/messages',
       // aiModels: '/ai-models',
