@@ -43,7 +43,7 @@ const CreateUserForm = () => {
     const fetchDepartments = async () => {
       try {
         const response = await departmentApi.getDepartments(1, 100);
-        setDepartments(response.data.departments.filter((dept: Department) => dept.is_active));
+        setDepartments(response.data.departments?.filter((dept: Department) => dept.is_active));
       } catch (error) {
         console.error('Failed to fetch departments:', error);
       }
@@ -188,7 +188,7 @@ const CreateUserForm = () => {
               }`}
             >
               <option value="">Select a department</option>
-              {departments.map((department) => (
+              {departments?.map((department) => (
                 <option key={department.department_id} value={department.department_id}>
                   {department.department_name}
                 </option>

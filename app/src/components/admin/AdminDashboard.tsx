@@ -221,12 +221,12 @@ const AdminDashboard = () => {
             </div>
           </div>
           <div className="divide-y divide-gray-200">
-            {departments.length === 0 ? (
+            {departments?.length === 0 ? (
               <div className="p-6 text-center text-gray-500">
                 No departments found
               </div>
             ) : (
-              departments.map((department) => (
+              departments?.map((department) => (
                 <div key={department.department_id} className="p-6 hover:bg-gray-50">
                   <div className="flex items-center justify-between">
                     <div>

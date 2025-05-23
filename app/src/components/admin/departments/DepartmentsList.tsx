@@ -31,7 +31,7 @@ const DepartmentsList = () => {
 
       // Client-side search filtering since the API doesn't support search
       if (searchQuery) {
-        filteredDepartments = filteredDepartments.filter(dept =>
+        filteredDepartments = filtereddepartments?.filter(dept =>
           dept.department_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           dept.description?.toLowerCase().includes(searchQuery.toLowerCase())
         );
@@ -76,7 +76,7 @@ const DepartmentsList = () => {
     setCurrentPage(1);
   };
 
-  if (loading && departments.length === 0) {
+  if (loading && departments?.length === 0) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -157,11 +157,11 @@ const DepartmentsList = () => {
       <div className="bg-white shadow rounded-lg overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">
-            Departments ({departments.length} total)
+            Departments ({departments?.length} total)
           </h2>
         </div>
 
-        {departments.length === 0 ? (
+        {departments?.length === 0 ? (
           <div className="p-6 text-center">
             <Building2 className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No departments</h3>
@@ -205,7 +205,7 @@ const DepartmentsList = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {departments.map((department) => (
+                  {departments?.map((department) => (
                     <tr key={department.department_id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

@@ -31,7 +31,7 @@ export class DepartmentController {
       success: true,
       message: 'Departments retrieved successfully',
       data: {
-        departments: result.departments.map(dept => ({
+        departments: result.departments?.map(dept => ({
           department_id: dept.department_id,
           department_name: dept.department_name,
           description: dept.description,
@@ -378,7 +378,7 @@ export class DepartmentController {
     
     const result = await DepartmentService.getDepartments(1, 100, { is_active: true });
     
-    return result.departments.map(dept => ({
+    return result.departments?.map(dept => ({
       id: dept.department_id,
       name: dept.department_name,
       description: dept.description

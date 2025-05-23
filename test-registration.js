@@ -3,12 +3,12 @@ const axios = require('axios');
 async function testRegistration() {
   try {
     // First, get departments
-    console.log('Getting departments...');
+    console.log('Getting departments?...');
     const deptResponse = await axios.get('http://localhost:3000/api/v1/auth/departments');
     console.log('Departments:', deptResponse.data.data);
     
     const departments = deptResponse.data.data;
-    const itDept = departments.find(d => d.name === 'IT');
+    const itDept = departments?.find(d => d.name === 'IT');
     
     if (!itDept) {
       console.error('IT department not found');

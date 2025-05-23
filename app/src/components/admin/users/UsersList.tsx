@@ -35,7 +35,7 @@ const UsersList = () => {
       if (searchQuery) filters.search = searchQuery;
 
       const response = await userApi.getUsers(currentPage, limit, filters);
-      setUsers(response.data.data);
+      setUsers(response.data.users);
       setTotal(response.data.pagination.total);
       setTotalPages(response.data.pagination.totalPages);
     } catch (error) {
@@ -48,7 +48,7 @@ const UsersList = () => {
   const fetchDepartments = async () => {
     try {
       const response = await departmentApi.getDepartments(1, 100);
-      setDepartments(response.data.data);
+      setDepartments(response.data.departments);
     } catch (error) {
       console.error('Failed to fetch departments:', error);
     }
@@ -89,7 +89,7 @@ const UsersList = () => {
     setCurrentPage(1);
   };
 
-  if (loading && users.length === 0) {
+  if (loading && users?.length === 0) {
     return (
       <div className="space-y-6">
         <div className="flex justify-between items-center">
@@ -157,7 +157,7 @@ const UsersList = () => {
                 className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               >
                 <option value="">All Departments</option>
-                {departments.map((dept) => (
+                {departments?.map((dept) => (
                   <option key={dept.department_id} value={dept.department_id}>
                     {dept.department_name}
                   </option>
@@ -210,7 +210,7 @@ const UsersList = () => {
           </h2>
         </div>
 
-        {users.length === 0 ? (
+        {users?.length === 0 ? (
           <div className="p-6 text-center">
             <User className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No users</h3>
@@ -254,7 +254,7 @@ const UsersList = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
+                  {users?.map((user) => (
                     <tr key={user.user_id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">

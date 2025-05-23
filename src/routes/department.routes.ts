@@ -19,14 +19,14 @@ router.get('/permissions',
   asyncHandler(DepartmentController.getAvailablePermissions)
 );
 
-// Get all departments (requires departments.read or system admin permissions)
+// Get all departments (requires departments?.read or system admin permissions)
 router.get('/', 
   requirePermission('view_users'), // Users with view_users can see departments for user management
   validateRequest(departmentValidation.getDepartmentsList),
   asyncHandler(DepartmentController.getDepartments)
 );
 
-// Get department by ID (requires departments.read permission)
+// Get department by ID (requires departments?.read permission)
 router.get('/:id', 
   requirePermission('view_users'),
   validateRequest(departmentValidation.getDepartmentById),

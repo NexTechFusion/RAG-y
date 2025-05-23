@@ -176,7 +176,7 @@ export const RegisterForm = () => {
                   disabled={loadingDepartments}
                 >
                   <option value="">Select a department</option>
-                  {departments.map((dept) => (
+                  {departments?.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {dept.name}
                     </option>
