@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, AlertCircle, Shield } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { loginSchema, type LoginFormData } from '../../lib/validations';
 
@@ -16,6 +16,7 @@ export const LoginForm = () => {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
+    setValue,
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -24,11 +25,22 @@ export const LoginForm = () => {
     try {
       setApiError('');
       await login(data);
-      navigate('/dashboard');
+      
+      // Navigate to admin panel if admin user, otherwise dashboard
+      if (data.email === 'admin@example.com') {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       const message = error.response?.data?.message || 'Login failed. Please try again.';
       setApiError(message);
     }
+  };
+
+  const useAdminCredentials = () => {
+    setValue('email', 'admin@example.com');
+    setValue('password', 'Admin123!');
   };
 
   return (
@@ -47,6 +59,32 @@ export const LoginForm = () => {
               create a new account
             </Link>
           </p>
+        </div>
+
+        {/* Admin Credentials Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+          <div className="flex">
+            <Shield className="h-5 w-5 text-blue-400" />
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-blue-800">
+                Admin Access
+              </h3>
+              <div className="mt-2 text-sm text-blue-700">
+                <p>Use these credentials to access the admin panel:</p>
+                <p className="mt-1 font-mono text-xs">
+                  Email: admin@example.com<br />
+                  Password: Admin123!
+                </p>
+                <button
+                  type="button"
+                  onClick={useAdminCredentials}
+                  className="mt-2 text-xs text-blue-600 hover:text-blue-800 underline"
+                >
+                  Click to fill admin credentials
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>

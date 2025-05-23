@@ -17,7 +17,7 @@ const PUBLIC_ENDPOINTS = [
   '/auth/register',
   '/auth/forgot-password',
   '/auth/reset-password',
-  '/departments'
+  '/auth/departments'
 ];
 
 // Request interceptor to add auth token

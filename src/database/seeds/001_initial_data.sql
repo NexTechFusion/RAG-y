@@ -155,7 +155,7 @@ BEGIN
         'System',
         'Administrator',
         'admin@example.com',
-        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeakKV7dg7OO.KSHu', -- bcrypt hash of 'Admin123!'
+        '$2a$12$jpf3czSrNvmgfDZ6YYixl.hDRzy91tlUiW3SE/gQIPNgGuop1r9BK', -- bcrypt hash of 'Admin123!'
         admin_dept_id
     ) RETURNING user_id INTO admin_user_id;
 
@@ -165,7 +165,7 @@ BEGIN
         'AI',
         'Assistant',
         'ai@system.internal',
-        '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeakKV7dg7OO.KSHu', -- Same hash, but AI users don't actually log in
+        '$2a$12$jpf3czSrNvmgfDZ6YYixl.hDRzy91tlUiW3SE/gQIPNgGuop1r9BK', -- Same hash, but AI users don't actually log in
         ai_dept_id,
         true
     ) RETURNING user_id INTO ai_user_id;

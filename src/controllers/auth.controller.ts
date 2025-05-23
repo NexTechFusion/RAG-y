@@ -4,11 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '@config/config';
 import { UserModel } from '@models/User.model';
 import { RedisConnection } from '@database/redis';
-import { 
-  BadRequestError, 
-  UnauthorizedError, 
+import {
+  BadRequestError,
+  UnauthorizedError,
   ConflictError,
-  NotFoundError 
+  NotFoundError
 } from '@utils/AppError';
 import { logger } from '@utils/logger';
 
@@ -52,7 +52,7 @@ export class AuthController {
 
       // Store refresh token in Redis
       const refreshTokenKey = `refresh_token:${user.user_id}`;
-      await RedisConnection.set(refreshTokenKey, refreshToken, { 
+      await RedisConnection.set(refreshTokenKey, refreshToken, {
         EX: 7 * 24 * 60 * 60 // 7 days
       });
 
@@ -98,7 +98,7 @@ export class AuthController {
       // Verify password
       const isPasswordValid = await UserModel.comparePassword(password, user.password_hash);
       if (!isPasswordValid) {
-        logger.warn('Invalid password attempt:', { email });
+        console.warn('Invalid password attempt:', email, password, user.password_hash);
         throw new UnauthorizedError('Invalid email or password');
       }
 
@@ -112,7 +112,7 @@ export class AuthController {
 
       // Store refresh token in Redis
       const refreshTokenKey = `refresh_token:${user.user_id}`;
-      await RedisConnection.set(refreshTokenKey, refreshToken, { 
+      await RedisConnection.set(refreshTokenKey, refreshToken, {
         EX: 7 * 24 * 60 * 60 // 7 days
       });
 
@@ -174,7 +174,7 @@ export class AuthController {
       const newRefreshToken = AuthController.generateRefreshToken(tokenPayload);
 
       // Update refresh token in Redis
-      await RedisConnection.set(refreshTokenKey, newRefreshToken, { 
+      await RedisConnection.set(refreshTokenKey, newRefreshToken, {
         EX: 7 * 24 * 60 * 60 // 7 days
       });
 
@@ -218,7 +218,7 @@ export class AuthController {
         if (req.user) {
           const refreshTokenKey = `refresh_token:${req.user.user_id}`;
           await RedisConnection.del(refreshTokenKey);
-          
+
           logger.info('User logged out:', { user_id: req.user.user_id });
         }
       }
@@ -255,16 +255,16 @@ export class AuthController {
       // Generate reset token
       const resetToken = uuidv4();
       const resetTokenKey = `password_reset:${resetToken}`;
-      
+
       // Store reset token with user ID for 1 hour
       await RedisConnection.set(resetTokenKey, user.user_id, { EX: 3600 });
 
       // TODO: Send email with reset link
       // For now, we'll just log it (in production, implement email service)
-      logger.info('Password reset requested:', { 
-        email, 
-        user_id: user.user_id, 
-        reset_token: resetToken 
+      logger.info('Password reset requested:', {
+        email,
+        user_id: user.user_id,
+        reset_token: resetToken
       });
 
       res.json({
@@ -331,7 +331,7 @@ export class AuthController {
 
       // Verify current password
       const isCurrentPasswordValid = await UserModel.comparePassword(
-        current_password, 
+        current_password,
         user.password_hash
       );
 
