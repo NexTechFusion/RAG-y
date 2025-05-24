@@ -1,11 +1,13 @@
 import { 
   DocumentModel, 
+  IDocument, 
   ICreateDocument, 
-  IUpdateDocument,
-  IDocumentFilters,
+  IUpdateDocument, 
+  IDocumentWithJoins, 
   IDocumentListResult,
-  IDocumentWithJoins
+  IDocumentFilters 
 } from '@models/Document.model';
+import { FolderModel } from '@models/Folder.model';
 import { 
   BadRequestError, 
   NotFoundError, 
@@ -33,23 +35,37 @@ export class DocumentService {
     });
 
     try {
-      // If user doesn't have view_documents permission, only show their own documents
-      if (!userPermissions.includes('view_documents')) {
-        filters.uploaded_by_user_id = requestingUserId;
-      }
+      // Apply permission-based filtering
+      const enhancedFilters = await this.applyPermissionFilters(
+        filters, 
+        requestingUserId, 
+        userPermissions
+      );
 
-      const result = await DocumentModel.findAll(page, limit, filters);
+      const result = await DocumentModel.findAll(page, limit, enhancedFilters);
       
+      // Filter documents based on folder permissions
+      const accessibleDocuments = await this.filterDocumentsByFolderAccess(
+        result.documents,
+        requestingUserId,
+        userPermissions
+      );
+
       logger.info('Service: Documents fetched successfully', { 
         total: result.total,
+        accessible_count: accessibleDocuments.length,
         page: result.page,
         requesting_user: requestingUserId 
       });
 
-      return result;
+      return {
+        ...result,
+        documents: accessibleDocuments,
+        total: accessibleDocuments.length
+      };
     } catch (error) {
       logger.error('Service: Failed to fetch documents', { 
-        error, 
+        error,
         requesting_user: requestingUserId 
       });
       throw error;
@@ -57,15 +73,15 @@ export class DocumentService {
   }
 
   /**
-   * Get document by ID with permission checking
+   * Get document by ID
    */
   static async getDocumentById(
-    documentId: string, 
-    requestingUserId: string, 
+    documentId: string,
+    requestingUserId: string,
     userPermissions: string[]
   ): Promise<IDocumentWithJoins> {
     logger.info('Service: Fetching document by ID', { 
-      document_id: documentId, 
+      document_id: documentId,
       requesting_user: requestingUserId 
     });
 
@@ -79,10 +95,16 @@ export class DocumentService {
         throw new NotFoundError('Document not found');
       }
 
-      // Check if user can access this document
-      if (!userPermissions.includes('view_documents') && 
-          document.uploaded_by_user_id !== requestingUserId) {
-        throw new ForbiddenError('Access denied');
+      // Check permissions
+      const hasAccess = await this.checkDocumentAccess(
+        document,
+        requestingUserId,
+        userPermissions,
+        'read'
+      );
+
+      if (!hasAccess) {
+        throw new ForbiddenError('Access denied to this document');
       }
 
       logger.info('Service: Document fetched successfully', { 
@@ -93,7 +115,7 @@ export class DocumentService {
       return document;
     } catch (error) {
       logger.error('Service: Failed to fetch document', { 
-        document_id: documentId, 
+        document_id: documentId,
         error,
         requesting_user: requestingUserId 
       });
@@ -116,9 +138,22 @@ export class DocumentService {
     });
 
     try {
-      // Check if user has permission to create documents
-      if (!userPermissions.includes('create_documents')) {
-        throw new ForbiddenError('Permission denied: create_documents required');
+      // Check folder permissions if document is being placed in a folder
+      if (documentData.folder_id) {
+        const hasWriteAccess = await FolderModel.checkUserPermission(
+          requestingUserId,
+          documentData.folder_id,
+          'write'
+        );
+        
+        if (!hasWriteAccess && !userPermissions.includes('create_documents')) {
+          throw new ForbiddenError('Permission denied: insufficient access to create documents in this folder');
+        }
+      } else {
+        // For root-level documents, require create_documents permission
+        if (!userPermissions.includes('create_documents')) {
+          throw new ForbiddenError('Permission denied: create_documents required');
+        }
       }
 
       // Set the uploaded_by_user_id to the requesting user
@@ -147,7 +182,7 @@ export class DocumentService {
   }
 
   /**
-   * Update document with permission checking
+   * Update document
    */
   static async updateDocument(
     documentId: string,
@@ -158,7 +193,7 @@ export class DocumentService {
     logger.info('Service: Updating document', { 
       document_id: documentId,
       update_fields: Object.keys(updateData),
-      requesting_user: requestingUserId 
+      updated_by: requestingUserId 
     });
 
     if (!documentId) {
@@ -166,51 +201,56 @@ export class DocumentService {
     }
 
     try {
-      // Get the document first to check ownership
-      const existingDocument = await DocumentModel.findById(documentId);
-      if (!existingDocument) {
+      const document = await DocumentModel.findById(documentId);
+      if (!document) {
         throw new NotFoundError('Document not found');
       }
 
       // Check permissions
-      const canEdit = userPermissions.includes('edit_documents') ||
-                     (existingDocument.uploaded_by_user_id === requestingUserId);
+      const hasAccess = await this.checkDocumentAccess(
+        document,
+        requestingUserId,
+        userPermissions,
+        'write'
+      );
 
-      if (!canEdit) {
-        throw new ForbiddenError('Access denied: insufficient permissions');
+      if (!hasAccess) {
+        throw new ForbiddenError('Permission denied: insufficient access to modify this document');
       }
 
-      // Prevent non-admin users from changing certain fields
-      if (existingDocument.uploaded_by_user_id === requestingUserId && 
-          !userPermissions.includes('edit_documents')) {
-        const restrictedFields = ['is_active'];
-        const hasRestrictedFields = restrictedFields.some(field => field in updateData);
+      // If moving to a different folder, check new folder permissions
+      if (updateData.folder_id && updateData.folder_id !== document.folder_id) {
+        const hasNewFolderAccess = await FolderModel.checkUserPermission(
+          requestingUserId,
+          updateData.folder_id,
+          'write'
+        );
         
-        if (hasRestrictedFields) {
-          throw new ForbiddenError('Cannot update restricted fields');
+        if (!hasNewFolderAccess && !userPermissions.includes('edit_documents')) {
+          throw new ForbiddenError('Permission denied: insufficient access to move document to target folder');
         }
       }
 
-      const document = await DocumentModel.update(documentId, updateData);
+      const updatedDocument = await DocumentModel.update(documentId, updateData);
 
       logger.info('Service: Document updated successfully', { 
         document_id: documentId,
-        requesting_user: requestingUserId 
+        updated_by: requestingUserId 
       });
 
-      return document;
+      return updatedDocument;
     } catch (error) {
       logger.error('Service: Failed to update document', { 
         document_id: documentId, 
-        error,
-        requesting_user: requestingUserId 
+        error, 
+        updated_by: requestingUserId 
       });
       throw error;
     }
   }
 
   /**
-   * Delete document with permission checking
+   * Delete document
    */
   static async deleteDocument(
     documentId: string,
@@ -219,7 +259,7 @@ export class DocumentService {
   ): Promise<void> {
     logger.info('Service: Deleting document', { 
       document_id: documentId,
-      requesting_user: requestingUserId 
+      deleted_by: requestingUserId 
     });
 
     if (!documentId) {
@@ -227,31 +267,34 @@ export class DocumentService {
     }
 
     try {
-      // Get the document first to check ownership
-      const existingDocument = await DocumentModel.findById(documentId);
-      if (!existingDocument) {
+      const document = await DocumentModel.findById(documentId);
+      if (!document) {
         throw new NotFoundError('Document not found');
       }
 
       // Check permissions
-      const canDelete = userPermissions.includes('delete_documents') ||
-                       (existingDocument.uploaded_by_user_id === requestingUserId);
+      const hasAccess = await this.checkDocumentAccess(
+        document,
+        requestingUserId,
+        userPermissions,
+        'delete'
+      );
 
-      if (!canDelete) {
-        throw new ForbiddenError('Access denied: insufficient permissions');
+      if (!hasAccess) {
+        throw new ForbiddenError('Permission denied: insufficient access to delete this document');
       }
 
       await DocumentModel.delete(documentId);
-      
+
       logger.info('Service: Document deleted successfully', { 
         document_id: documentId,
-        requesting_user: requestingUserId 
+        deleted_by: requestingUserId 
       });
     } catch (error) {
       logger.error('Service: Failed to delete document', { 
         document_id: documentId, 
-        error,
-        requesting_user: requestingUserId 
+        error, 
+        deleted_by: requestingUserId 
       });
       throw error;
     }
@@ -261,40 +304,35 @@ export class DocumentService {
    * Search documents
    */
   static async searchDocuments(
-    searchTerm: string,
+    searchQuery: string,
     page: number = 1,
     limit: number = 10,
-    filters: IDocumentFilters = {},
+    filters: Partial<IDocumentFilters> = {},
     requestingUserId: string,
     userPermissions: string[]
   ): Promise<IDocumentListResult> {
     logger.info('Service: Searching documents', { 
-      search_term: searchTerm,
+      search_query: searchQuery,
       page, 
-      limit, 
+      limit,
       filters,
       requesting_user: requestingUserId 
     });
 
+    if (!searchQuery) {
+      throw new BadRequestError('Search query is required');
+    }
+
     try {
-      // If user doesn't have view_documents permission, only search their own documents
-      if (!userPermissions.includes('view_documents')) {
-        filters.uploaded_by_user_id = requestingUserId;
-      }
+      const searchFilters: IDocumentFilters = {
+        ...filters,
+        search: searchQuery
+      };
 
-      const result = await DocumentModel.search(searchTerm, page, limit, filters);
-      
-      logger.info('Service: Document search completed', { 
-        search_term: searchTerm,
-        total: result.total,
-        page: result.page,
-        requesting_user: requestingUserId 
-      });
-
-      return result;
+      return await this.getDocuments(page, limit, searchFilters, requestingUserId, userPermissions);
     } catch (error) {
       logger.error('Service: Failed to search documents', { 
-        search_term: searchTerm,
+        search_query: searchQuery,
         error,
         requesting_user: requestingUserId 
       });
@@ -324,13 +362,18 @@ export class DocumentService {
     }
 
     try {
-      const filters: IDocumentFilters = { folder_id: folderId };
+      // Check folder access first
+      const hasAccess = await FolderModel.checkUserPermission(
+        requestingUserId,
+        folderId,
+        'read'
+      );
 
-      // If user doesn't have view_documents permission, only show their own documents
-      if (!userPermissions.includes('view_documents')) {
-        filters.uploaded_by_user_id = requestingUserId;
+      if (!hasAccess && !userPermissions.includes('view_documents')) {
+        throw new ForbiddenError('Access denied to this folder');
       }
 
+      const filters: IDocumentFilters = { folder_id: folderId };
       const result = await DocumentModel.findAll(page, limit, filters);
       
       logger.info('Service: Documents by folder fetched successfully', { 
@@ -357,19 +400,28 @@ export class DocumentService {
   static async getDocumentStatistics(
     requestingUserId: string,
     userPermissions: string[]
-  ) {
+  ): Promise<any> {
     logger.info('Service: Fetching document statistics', { 
       requesting_user: requestingUserId 
     });
 
     try {
-      // Check if user has permission to view analytics
+      const stats = await DocumentModel.getStatistics();
+
+      // If user doesn't have view_analytics permission, filter stats
       if (!userPermissions.includes('view_analytics')) {
-        throw new ForbiddenError('Permission denied: view_analytics required');
+        // Return limited stats - just show basic counts without sensitive data
+        return {
+          total_documents: 0,
+          active_documents: 0,
+          total_file_size: 0,
+          unique_mime_types: 0,
+          unique_uploaders: 0,
+          average_file_size: 0,
+          message: 'Limited statistics for non-admin users'
+        };
       }
 
-      const stats = await DocumentModel.getStatistics();
-      
       logger.info('Service: Document statistics fetched successfully', { 
         requesting_user: requestingUserId 
       });
@@ -377,28 +429,99 @@ export class DocumentService {
       return stats;
     } catch (error) {
       logger.error('Service: Failed to fetch document statistics', { 
-        error,
+        error, 
         requesting_user: requestingUserId 
       });
       throw error;
     }
   }
 
-  /**
-   * Validate document exists
-   */
-  static async validateDocumentExists(documentId: string): Promise<boolean> {
-    logger.info('Service: Validating document exists', { document_id: documentId });
-
-    try {
-      const document = await DocumentModel.findById(documentId);
-      return !!document;
-    } catch (error) {
-      logger.error('Service: Failed to validate document exists', { 
-        document_id: documentId, 
-        error 
-      });
-      return false;
+  // Private helper methods
+  private static async applyPermissionFilters(
+    filters: IDocumentFilters,
+    requestingUserId: string,
+    userPermissions: string[]
+  ): Promise<IDocumentFilters> {
+    // If user has global view_documents permission, return filters as-is
+    if (userPermissions.includes('view_documents')) {
+      return filters;
     }
+
+    // For users without global permissions, only show their own documents
+    // (additional folder-based filtering happens in filterDocumentsByFolderAccess)
+    return {
+      ...filters,
+      uploaded_by_user_id: requestingUserId
+    };
+  }
+
+  private static async filterDocumentsByFolderAccess(
+    documents: IDocumentWithJoins[],
+    requestingUserId: string,
+    userPermissions: string[]
+  ): Promise<IDocumentWithJoins[]> {
+    // If user has global view_documents permission, return all documents
+    if (userPermissions.includes('view_documents')) {
+      return documents;
+    }
+
+    // Filter documents based on folder access
+    const accessibleDocuments: IDocumentWithJoins[] = [];
+    
+    for (const document of documents) {
+      const hasAccess = await this.checkDocumentAccess(
+        document,
+        requestingUserId,
+        userPermissions,
+        'read'
+      );
+      
+      if (hasAccess) {
+        accessibleDocuments.push(document);
+      }
+    }
+
+    return accessibleDocuments;
+  }
+
+  private static async checkDocumentAccess(
+    document: IDocumentWithJoins,
+    requestingUserId: string,
+    userPermissions: string[],
+    requiredPermission: 'read' | 'write' | 'delete'
+  ): Promise<boolean> {
+    // Global permissions allow everything
+    const globalPermissionMap = {
+      read: 'view_documents',
+      write: 'edit_documents',
+      delete: 'delete_documents'
+    };
+
+    if (userPermissions.includes(globalPermissionMap[requiredPermission])) {
+      return true;
+    }
+
+    // Document owner always has access
+    if (document.uploaded_by_user_id === requestingUserId) {
+      return true;
+    }
+
+    // Check folder permissions if document is in a folder
+    if (document.folder_id) {
+      const folderPermissionMap = {
+        read: 'read',
+        write: 'write',
+        delete: 'delete'
+      };
+
+      return await FolderModel.checkUserPermission(
+        requestingUserId,
+        document.folder_id,
+        folderPermissionMap[requiredPermission] as 'read' | 'write' | 'delete' | 'manage'
+      );
+    }
+
+    // For documents not in folders, only global permissions or ownership grant access
+    return false;
   }
 } 

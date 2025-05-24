@@ -5,8 +5,9 @@ A comprehensive Node.js backend built with Bun, TypeScript, and PostgreSQL for a
 ## 🚀 Features
 
 - **AI-Powered Chat**: Integrate with multiple AI providers (OpenAI, Anthropic, Google)
-- **Document Management**: Upload, organize, and manage documents with folder structure
-- **Role-Based Access Control**: Department-based permissions system
+- **Advanced Document Management**: Upload, organize, and manage documents with hierarchical folder structure and granular permissions
+- **Folder Management System**: Complete folder hierarchy with user/department-based permissions (read, write, delete, manage)
+- **Role-Based Access Control**: Department-based permissions system with folder-level access control
 - **Real-time Messaging**: Support for text, audio, and file attachments
 - **User Management**: Complete user lifecycle with authentication and authorization
 - **Audit Logging**: Track all system changes and user activities
@@ -134,6 +135,7 @@ The application includes a complete database schema with:
 
 ### Document Management
 - `folders` - Hierarchical folder structure
+- `folderpermissions` - Granular folder-level permissions for users and departments
 - `documents` - File metadata and references
 
 ### AI Chat System
@@ -146,6 +148,168 @@ The application includes a complete database schema with:
 ### Audit & Security
 - `auditlog` - System change tracking
 
+## 📁 Folder Management System
+
+The application features a comprehensive hierarchical folder management system with granular permissions, allowing organizations to structure and control access to documents effectively.
+
+### 🏗️ Folder Architecture
+
+#### Hierarchical Structure
+- **Tree-based Organization**: Unlimited depth folder nesting
+- **Parent-Child Relationships**: Clear hierarchical navigation
+- **Breadcrumb Support**: Full path navigation with `getFolderHierarchy`
+- **Circular Reference Prevention**: Automatic validation to prevent folder loops
+
+#### Database Schema
+The folder system is built on two main tables:
+
+**`folders` Table**:
+- Hierarchical structure with `parent_folder_id` relationships
+- Access level control (`public`, `restricted`, `private`, `inherited`)
+- Permission inheritance settings
+- Creator tracking and metadata
+
+**`folderpermissions` Table**:
+- Granular user and department-based permissions
+- Four permission types: `read`, `write`, `delete`, `manage`
+- Permission inheritance through folder hierarchy
+- Audit trail with granted-by tracking
+
+### 🔐 Permission Model
+
+#### Access Levels
+- **`public`**: Readable by all authenticated users
+- **`restricted`**: Access controlled by explicit permissions
+- **`private`**: Access limited to creator and explicitly granted users/departments
+- **`inherited`**: Inherits access level from parent folder
+
+#### Permission Types
+- **`read`**: View folder and list contents
+- **`write`**: Create/upload documents and subfolders
+- **`delete`**: Delete folder contents and subfolders  
+- **`manage`**: Full control including permission management
+
+#### Permission Inheritance
+- Permissions automatically cascade down the folder hierarchy
+- Can be disabled per folder with `inherit_permissions: false`
+- Child folders can override parent permissions when inheritance is disabled
+- Database functions ensure efficient permission checking
+
+### 🎯 Permission Resolution
+
+The system follows a priority order for access control:
+
+1. **Global Permissions**: `manage_folders` grants admin access to all folders
+2. **Folder Creator**: Original creator always has full access
+3. **Explicit Permissions**: Direct user or department permissions on folder
+4. **Inherited Permissions**: Parent folder permissions (if inheritance enabled)
+5. **Public Access**: Public folders allow read access to all users
+
+### 🛠️ API Features
+
+#### Core Operations
+- **CRUD Operations**: Full create, read, update, delete functionality
+- **Search & Filter**: Text search with filtering by parent, access level, creator
+- **Pagination**: Efficient pagination for large folder structures
+- **Bulk Operations**: Support for batch folder operations
+
+#### Permission Management
+- **Grant Permissions**: Assign permissions to users or departments
+- **Revoke Permissions**: Remove specific permissions with granular control
+- **Permission Listing**: View all permissions for administrative oversight
+- **Access Validation**: Real-time permission checking for operations
+
+#### Navigation & Discovery
+- **Accessible Folders**: Get folders user can access based on permission type
+- **Hierarchy Traversal**: Generate breadcrumb navigation paths
+- **Parent-Child Navigation**: Efficient subfolder listing
+- **Permission-Aware Filtering**: Results automatically filtered by user access
+
+### 🔄 Document Integration
+
+The folder system is tightly integrated with document management:
+
+#### Document Access Control
+- **Folder-Based Permissions**: Documents inherit access control from containing folder
+- **Upload Restrictions**: Users need `write` permission to upload to folders
+- **Move Operations**: Permission validation when moving documents between folders
+- **Read Access**: Documents respect folder `read` permissions for viewing
+
+#### Permission Checking
+- Documents without folders use global permissions (`view_documents`, `edit_documents`)
+- Documents in folders use folder permissions as primary access control
+- Document creators maintain access regardless of folder permissions
+- Admin users with global permissions override folder restrictions
+
+### 🔧 Implementation Examples
+
+#### Creating a Folder Structure
+```typescript
+// Create parent folder
+POST /api/v1/folders
+{
+  "folder_name": "Company Documents",
+  "access_level": "restricted",
+  "description": "Main company document repository"
+}
+
+// Create subfolder
+POST /api/v1/folders  
+{
+  "folder_name": "HR Policies",
+  "parent_folder_id": "parent-uuid",
+  "access_level": "inherited",
+  "inherit_permissions": true
+}
+```
+
+#### Granting Permissions
+```typescript
+// Grant department write access
+POST /api/v1/folders/permissions
+{
+  "folder_id": "folder-uuid",
+  "department_id": "hr-dept-uuid", 
+  "permission_type": "write"
+}
+
+// Grant user manage access
+POST /api/v1/folders/permissions
+{
+  "folder_id": "folder-uuid",
+  "user_id": "user-uuid",
+  "permission_type": "manage"
+}
+```
+
+#### Permission-Aware Document Upload
+```typescript
+// System automatically checks folder write permissions
+POST /api/v1/documents
+{
+  "document_name": "Employee Handbook.pdf",
+  "folder_id": "hr-folder-uuid",
+  "file_path": "/uploads/handbook.pdf"
+  // Requires write access to hr-folder-uuid
+}
+```
+
+### 📊 Database Functions
+
+The system includes optimized PostgreSQL functions:
+
+- **`user_has_folder_permission(user_id, folder_id, permission_type)`**: Efficient permission checking with hierarchy traversal
+- **`get_user_accessible_folders(user_id, permission_type)`**: Returns all accessible folders for a user
+- **Permission Inheritance**: Automatic cascade through folder hierarchy with depth limits
+
+### 🛡️ Security Features
+
+- **SQL Injection Prevention**: Parameterized queries and input validation
+- **Permission Validation**: Multi-layer access control checking
+- **Audit Trail**: Complete tracking of permission grants and modifications
+- **Input Sanitization**: Folder names and descriptions validated against malicious input
+- **Circular Reference Protection**: Prevents infinite loops in folder structure
+
 ## 🔐 Authentication & Authorization
 
 ### JWT Authentication
@@ -157,12 +321,14 @@ The application includes a complete database schema with:
 Users are assigned to departments, which have specific permissions:
 
 #### Default Departments & Permissions
-- **Admin**: Full system access
-- **IT**: Technical management and user administration
-- **HR**: User management and document access
-- **Finance**: Document access and analytics
-- **Marketing**: Basic document and chat access
-- **Operations**: Document management and analytics
+- **Admin**: Full system access including all folder management and global permissions
+- **IT**: Technical management, user administration, and folder management capabilities
+- **HR**: User management, document access, and department-specific folder permissions
+- **Finance**: Document access, analytics, and assigned folder permissions
+- **Marketing**: Basic document and chat access with limited folder permissions
+- **Operations**: Document management, analytics, and operational folder access
+
+**Note**: The `manage_folders` permission grants admin-level access to all folders regardless of specific folder permissions.
 
 ### Default Admin User
 - **Email**: admin@example.com
@@ -197,6 +363,22 @@ GET    /api/v1/documents/:id  - Get document
 POST   /api/v1/documents      - Upload document
 PUT    /api/v1/documents/:id  - Update document
 DELETE /api/v1/documents/:id  - Delete document
+```
+
+### Folders
+```
+GET    /api/v1/folders                    - List folders with pagination
+GET    /api/v1/folders/:id               - Get folder details
+POST   /api/v1/folders                   - Create new folder
+PUT    /api/v1/folders/:id               - Update folder
+DELETE /api/v1/folders/:id               - Delete folder
+GET    /api/v1/folders/search            - Search folders
+GET    /api/v1/folders/accessible        - Get user accessible folders
+GET    /api/v1/folders/parent/:parentId  - Get subfolders by parent
+GET    /api/v1/folders/:id/hierarchy     - Get folder breadcrumb hierarchy
+GET    /api/v1/folders/:id/permissions   - Get folder permissions
+POST   /api/v1/folders/permissions       - Grant folder permission
+DELETE /api/v1/folders/:id/permissions   - Revoke folder permission
 ```
 
 ### Conversations
@@ -311,7 +493,6 @@ Log files are stored in the `logs/` directory with automatic rotation.
 - [ ] Configure proper CORS origins
 - [ ] Set up rate limiting
 - [ ] Enable audit logging
-- [ ] Regular security updates
 - [ ] Database connection encryption
 - [ ] Environment variable security
 

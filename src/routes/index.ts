@@ -3,6 +3,7 @@ import { authRoutes } from './auth.routes';
 import { userRoutes } from './user.routes';
 import { departmentRoutes } from './department.routes';
 import { documentRoutes } from './document.routes';
+import { folderRoutes } from './folder.routes';
 // import { conversationRoutes } from './conversation.routes';
 // import { messageRoutes } from './message.routes';
 import { permissionRoutes } from './permission.routes';
@@ -30,6 +31,14 @@ router.get('/test', (req, res) => {
       departmentController: 'imported successfully',
       departmentValidation: 'imported successfully',
       departmentService: 'imported successfully',
+      documentRoutes: 'imported successfully',
+      documentController: 'imported successfully',
+      documentValidation: 'imported successfully',
+      documentService: 'imported successfully',
+      folderRoutes: 'imported successfully',
+      folderController: 'imported successfully',
+      folderValidation: 'imported successfully',
+      folderService: 'imported successfully',
       permissionRoutes: 'imported successfully',
       permissionController: 'imported successfully',
       permissionValidation: 'imported successfully',
@@ -51,6 +60,7 @@ router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/departments', departmentRoutes);
 router.use('/documents', documentRoutes);
+router.use('/folders', folderRoutes);
 router.use('/permissions', permissionRoutes);
 // router.use('/conversations', conversationRoutes);
 // router.use('/messages', messageRoutes);
@@ -60,7 +70,7 @@ router.get('/', (req, res) => {
   res.json({
     name: 'AI Chat Application API',
     version: '1.0.0',
-    description: 'RESTful API for AI-powered chat application with document management',
+    description: 'RESTful API for AI-powered chat application with document management and folder permissions',
     architecture: 'Clean Architecture with Service Layer Pattern',
     endpoints: {
       auth: '/auth',
@@ -68,10 +78,18 @@ router.get('/', (req, res) => {
       users: '/users',
       departments: '/departments',
       documents: '/documents',
+      folders: '/folders',
       permissions: '/permissions',
       // conversations: '/conversations',
       // messages: '/messages',
       // aiModels: '/ai-models',
+    },
+    features: {
+      authentication: 'JWT-based authentication with refresh tokens',
+      authorization: 'Role-based permissions system',
+      documents: 'Document management with file operations',
+      folders: 'Hierarchical folder structure with granular permissions',
+      permissions: 'Fine-grained permission control at folder and system level',
     },
     documentation: '/docs',
     health: '/health',
